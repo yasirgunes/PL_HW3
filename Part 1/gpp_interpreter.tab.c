@@ -71,9 +71,14 @@
  //definitions
  #include <stdio.h>
  #include <string.h>
- char* add_fractions(char* frac1, char* frac2);
+ char* add(char* frac1, char* frac2);
+ char* subtract(char* frac1, char* frac2);
+ char* multiply(char* frac1, char* frac2);
+ char* divide(char* frac1, char* frac2);
+ int gcd(int a, int b);
+ void simplify_fraction(int *numerator, int *denominator);
 
-#line 77 "gpp_interpreter.tab.c"
+#line 82 "gpp_interpreter.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -138,12 +143,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 10 "gpp_interpreter.y"
+#line 15 "gpp_interpreter.y"
 
 char string [20];
 char symbol;
 
-#line 147 "gpp_interpreter.tab.c"
+#line 152 "gpp_interpreter.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -460,9 +465,9 @@ union yyalloc
 #endif /* !YYCOPY_NEEDED */
 
 /* YYFINAL -- State number of the termination state.  */
-#define YYFINAL  14
+#define YYFINAL  16
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   50
+#define YYLAST   52
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  13
@@ -471,7 +476,7 @@ union yyalloc
 /* YYNRULES -- Number of rules.  */
 #define YYNRULES  18
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  42
+#define YYNSTATES  43
 
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   267
@@ -519,8 +524,8 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    40,    40,    41,    42,    43,    46,    51,    52,    53,
-      54,    55,    56,    57,    58,    59,    67,    68,    69
+       0,    45,    45,    46,    47,    48,    51,    56,    61,    66,
+      71,    72,    73,    74,    75,    76,    84,    85,    86
 };
 #endif
 
@@ -545,7 +550,7 @@ static const yytype_int16 yytoknum[] =
 };
 # endif
 
-#define YYPACT_NINF (-8)
+#define YYPACT_NINF (-4)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -559,11 +564,11 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-       6,    31,    -8,    -8,     4,     6,    -8,    19,    19,    19,
-      19,     1,    -4,    19,    -8,    -8,    38,    19,    19,    19,
-      19,    -8,    21,    19,    10,    15,    16,    25,    23,    43,
-      19,    -8,    -8,    -8,    -8,    19,    44,    -8,    -8,    46,
-      -8,    -8
+       0,    34,    -4,    11,     1,     0,    -4,    11,    11,    11,
+      11,    -2,     2,    11,    41,    -4,    -4,    -4,    11,    11,
+      11,    11,    -4,    24,    11,     4,     5,    15,    20,    26,
+      21,    11,    -4,    -4,    -4,    -4,    11,    27,    -4,    -4,
+      28,    -4,    -4
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -571,17 +576,17 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       5,     0,    13,    14,     0,     5,     3,    15,    15,    15,
-      15,     0,     0,    15,     1,     2,     0,    15,    15,    15,
-      15,     4,    15,    10,     0,     0,     0,     0,    13,     0,
-      11,     6,     7,     8,     9,    13,     0,    16,    12,     0,
-      17,    18
+       5,     0,    13,    15,     0,     5,     3,    15,    15,    15,
+      15,     0,     0,    15,     0,    14,     1,     2,    15,    15,
+      15,    15,     4,    15,    10,     0,     0,     0,     0,    13,
+       0,    11,     6,     7,     8,     9,    13,     0,    16,    12,
+       0,    17,    18
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -8,     3,    -7,    -8
+      -4,    25,    -3,    -4
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
@@ -595,22 +600,22 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      17,    18,    19,    20,    14,    21,    23,    22,    15,     1,
-      24,    25,    26,    27,    31,    29,    30,     2,     3,    32,
-      33,    36,    16,    38,    16,     0,    16,     0,    39,    34,
-       2,     3,    28,     3,    35,     3,     7,     8,     9,    10,
-      11,    12,    13,     7,     8,     9,    10,    37,    40,    13,
-      41
+      15,    16,    22,     1,    18,    19,    20,    21,    32,    33,
+      24,     2,     3,    23,    14,    25,    26,    27,    28,    34,
+      30,    31,     2,     3,    35,    38,    37,    14,    39,    14,
+      17,    41,    42,    40,     0,    29,     3,    36,     3,     7,
+       8,     9,    10,    11,    12,    13,     7,     8,     9,    10,
+       0,     0,    13
 };
 
 static const yytype_int8 yycheck[] =
 {
-       7,     8,     9,    10,     0,     4,    13,    11,     5,     3,
-      17,    18,    19,    20,     4,    22,    23,    11,    12,     4,
-       4,    28,     3,    30,     3,    -1,     3,    -1,    35,     4,
-      11,    12,    11,    12,    11,    12,     5,     6,     7,     8,
-       9,    10,    11,     5,     6,     7,     8,     4,     4,    11,
-       4
+       3,     0,     4,     3,     7,     8,     9,    10,     4,     4,
+      13,    11,    12,    11,     3,    18,    19,    20,    21,     4,
+      23,    24,    11,    12,     4,     4,    29,     3,    31,     3,
+       5,     4,     4,    36,    -1,    11,    12,    11,    12,     5,
+       6,     7,     8,     9,    10,    11,     5,     6,     7,     8,
+      -1,    -1,    11
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -618,10 +623,10 @@ static const yytype_int8 yycheck[] =
 static const yytype_int8 yystos[] =
 {
        0,     3,    11,    12,    14,    15,    16,     5,     6,     7,
-       8,     9,    10,    11,     0,    14,     3,    15,    15,    15,
-      15,     4,    11,    15,    15,    15,    15,    15,    11,    15,
-      15,     4,     4,     4,     4,    11,    15,     4,    15,    15,
-       4,     4
+       8,     9,    10,    11,     3,    15,     0,    14,    15,    15,
+      15,    15,     4,    11,    15,    15,    15,    15,    15,    11,
+      15,    15,     4,     4,     4,     4,    11,    15,     4,    15,
+      15,     4,     4
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
@@ -635,7 +640,7 @@ static const yytype_int8 yyr1[] =
 static const yytype_int8 yyr2[] =
 {
        0,     2,     2,     1,     3,     0,     5,     5,     5,     5,
-       3,     4,     5,     1,     1,     0,     5,     6,     7
+       3,     4,     5,     1,     2,     0,     5,     6,     7
 };
 
 
@@ -1330,18 +1335,54 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
+  case 4:
+#line 47 "gpp_interpreter.y"
+                                  { printf("Exiting...\n"); exit(0); }
+#line 1342 "gpp_interpreter.tab.c"
+    break;
+
   case 6:
-#line 46 "gpp_interpreter.y"
+#line 51 "gpp_interpreter.y"
                                     {
-         char* result = add_fractions((yyvsp[-2].string), (yyvsp[-1].string));
+         char* result = add((yyvsp[-2].string), (yyvsp[-1].string));
          strcpy((yyval.string), result);
          printf("%s\n", (yyval.string)); 
          }
-#line 1341 "gpp_interpreter.tab.c"
+#line 1352 "gpp_interpreter.tab.c"
+    break;
+
+  case 7:
+#line 56 "gpp_interpreter.y"
+                                    {
+        char* result = subtract((yyvsp[-2].string), (yyvsp[-1].string));
+        strcpy((yyval.string), result);
+        printf("%s\n", (yyval.string)); 
+    }
+#line 1362 "gpp_interpreter.tab.c"
+    break;
+
+  case 8:
+#line 61 "gpp_interpreter.y"
+                                    {
+        char* result = multiply((yyvsp[-2].string), (yyvsp[-1].string));
+        strcpy((yyval.string), result);
+        printf("%s\n", (yyval.string)); 
+    }
+#line 1372 "gpp_interpreter.tab.c"
+    break;
+
+  case 9:
+#line 66 "gpp_interpreter.y"
+                                    {
+        char* result = divide((yyvsp[-2].string), (yyvsp[-1].string));
+        strcpy((yyval.string), result);
+        printf("%s\n", (yyval.string)); 
+    }
+#line 1382 "gpp_interpreter.tab.c"
     break;
 
 
-#line 1345 "gpp_interpreter.tab.c"
+#line 1386 "gpp_interpreter.tab.c"
 
       default: break;
     }
@@ -1573,7 +1614,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 73 "gpp_interpreter.y"
+#line 90 "gpp_interpreter.y"
 
 
 int main() {
@@ -1586,7 +1627,23 @@ int yyerror(char *s) {
     return 0;
 }
 
-char* add_fractions(char* frac1, char* frac2) {
+int gcd(int a, int b) {
+    while (b != 0) {
+        int t = b;
+        b = a % b;
+        a = t;
+    }
+    return a;
+}
+
+void simplify_fraction(int *numerator, int *denominator) {
+    int common_divisor = gcd(*numerator, *denominator);
+    *numerator /= common_divisor;
+    *denominator /= common_divisor;
+}
+
+
+char* add(char* frac1, char* frac2) {
     // Extract numerators and denominators from frac1 and frac2
     int num1, denom1, num2, denom2;
     sscanf(frac1, "%db%d", &num1, &denom1);
@@ -1596,10 +1653,77 @@ char* add_fractions(char* frac1, char* frac2) {
     int common_denom = denom1 * denom2;
     int result_num = (num1 * denom2) + (num2 * denom1);
 
+    // simplify the fraction
+    simplify_fraction(&result_num, &common_denom);
+
     // Allocate memory for the result
     char* result = (char*)malloc(20 * sizeof(char));
     if (result != NULL) {
         sprintf(result, "%db%d", result_num, common_denom);
+    }
+    return result; // Return the dynamically allocated result
+}
+
+char* subtract(char* frac1, char* frac2) {
+    // Extract numerators and denominators from frac1 and frac2
+    int num1, denom1, num2, denom2;
+    sscanf(frac1, "%db%d", &num1, &denom1);
+    sscanf(frac2, "%db%d", &num2, &denom2);
+
+    // Calculate the difference as fractions (assuming same denominator for simplicity)
+    // Here, simply subtract the second numerator from the first after adjusting for common denominator
+    int common_denom = denom1 * denom2;
+    int result_num = (num1 * denom2) - (num2 * denom1);
+
+    // simplify the fraction
+    simplify_fraction(&result_num, &common_denom);
+
+    // Allocate memory for the result
+    char* result = (char*)malloc(20 * sizeof(char));
+    if (result != NULL) {
+        sprintf(result, "%db%d", result_num, common_denom);
+    }
+    return result; // Return the dynamically allocated result
+}
+
+char* multiply(char* frac1, char* frac2) {
+    // Extract numerators and denominators from frac1 and frac2
+    int num1, denom1, num2, denom2;
+    sscanf(frac1, "%db%d", &num1, &denom1);
+    sscanf(frac2, "%db%d", &num2, &denom2);
+
+    // Calculate the product as fractions
+    int result_num = num1 * num2;
+    int result_denom = denom1 * denom2;
+
+    // simplify the fraction
+    simplify_fraction(&result_num, &result_denom);
+
+    // Allocate memory for the result
+    char* result = (char*)malloc(20 * sizeof(char));
+    if (result != NULL) {
+        sprintf(result, "%db%d", result_num, result_denom);
+    }
+    return result; // Return the dynamically allocated result
+}
+
+char* divide(char* frac1, char* frac2) {
+    // Extract numerators and denominators from frac1 and frac2
+    int num1, denom1, num2, denom2;
+    sscanf(frac1, "%db%d", &num1, &denom1);
+    sscanf(frac2, "%db%d", &num2, &denom2);
+
+    // Calculate the quotient as fractions
+    int result_num = num1 * denom2;
+    int result_denom = denom1 * num2;
+
+    // simplify the fraction
+    simplify_fraction(&result_num, &result_denom);
+
+    // Allocate memory for the result
+    char* result = (char*)malloc(20 * sizeof(char));
+    if (result != NULL) {
+        sprintf(result, "%db%d", result_num, result_denom);
     }
     return result; // Return the dynamically allocated result
 }

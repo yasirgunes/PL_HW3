@@ -66,7 +66,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 10 "gpp_interpreter.y"
+#line 15 "gpp_interpreter.y"
 
 char string [20];
 char symbol;

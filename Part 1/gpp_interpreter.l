@@ -22,8 +22,7 @@ def           { printf("KW_DEF\n");     }
 for           { printf("KW_FOR\n");     }
 if            { printf("KW_IF\n");      }
 exit          { printf("KW_EXIT\n"); 
-                printf("Exiting...\n");
-                return 0;               }
+                return KW_EXIT; }
 load          { printf("KW_LOAD\n");    }
 display       { printf("KW_DISPLAY\n"); }
 true          { printf("KW_TRUE\n");    }
