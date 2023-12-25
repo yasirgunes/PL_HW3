@@ -1,12 +1,15 @@
-/* {% 
+%{ 
  //definitions
-%} */
+ #include <stdio.h>
+ #include <string.h>
+ char* add_fractions(char* frac1, char* frac2);
+%}
+
 
 // rules
 %union{
 char string [20];
 char symbol;
-float valuef;
 }
 
 /* operators */
@@ -25,29 +28,35 @@ float valuef;
 %token <string> IDENTIFIER
 
 /* value */
-%token <valuef> VALUEF
+%token <string> VALUEF
 
-%type <valuef> EXP
+%type <string> EXP
 
 
 // rules
 %% 
 
 START:
-    EXP
+    EXP START
     | FUNCTION
     | OP_OP KW_EXIT OP_CP
+    |
     ;   
 EXP: /* An expression always returns a fraction */
-      OP_OP OP_PLUS EXP EXP OP_CP { $$ = $3 + $4; printf("%f\n", $$); }
-    | OP_OP OP_MINUS EXP EXP OP_CP 
-    | OP_OP OP_MULT EXP EXP OP_CP 
-    | OP_OP OP_DIV EXP EXP OP_CP 
-    | OP_OP IDENTIFIER EXP
-    | OP_OP IDENTIFIER EXP EXP 
-    | OP_OP IDENTIFIER EXP EXP EXP
-    | IDENTIFIER
-    | VALUEF
+      OP_OP OP_PLUS EXP EXP OP_CP   {
+         char* result = add_fractions($3, $4);
+         strcpy($$, result);
+         printf("%s\n", $$); 
+         }                          
+    | OP_OP OP_MINUS EXP EXP OP_CP  
+    | OP_OP OP_MULT EXP EXP OP_CP   
+    | OP_OP OP_DIV EXP EXP OP_CP    
+    | OP_OP IDENTIFIER EXP          
+    | OP_OP IDENTIFIER EXP EXP      
+    | OP_OP IDENTIFIER EXP EXP EXP  
+    | IDENTIFIER                    
+    | VALUEF                        
+    |
     ;
 
 /* 
@@ -71,4 +80,22 @@ int main() {
 int yyerror(char *s) {
     fprintf(stderr, "error: %s\n", s);
     return 0;
+}
+
+char* add_fractions(char* frac1, char* frac2) {
+    // Extract numerators and denominators from frac1 and frac2
+    int num1, denom1, num2, denom2;
+    sscanf(frac1, "%db%d", &num1, &denom1);
+    sscanf(frac2, "%db%d", &num2, &denom2);
+
+    // Calculate the sum as fractions (assuming same denominator for simplicity)
+    int common_denom = denom1 * denom2;
+    int result_num = (num1 * denom2) + (num2 * denom1);
+
+    // Allocate memory for the result
+    char* result = (char*)malloc(20 * sizeof(char));
+    if (result != NULL) {
+        sprintf(result, "%db%d", result_num, common_denom);
+    }
+    return result; // Return the dynamically allocated result
 }

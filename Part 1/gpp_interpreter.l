@@ -38,7 +38,7 @@ false         { printf("KW_FALSE\n");   }
 [,]           { printf("OP_COMMA\n");   }
 
         /* literal comment identifier */
-[0-9]+b[0-9]+           { printf("VALUEF\n"); }
+[0-9]+b[0-9]+           { printf("VALUEF\n");  strcpy(yylval.string, yytext); return VALUEF;}
 
 [;]{2}.*                { printf("COMMENT\n");    }
 

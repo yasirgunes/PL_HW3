@@ -65,6 +65,15 @@
 
 
 
+/* First part of user prologue.  */
+#line 1 "gpp_interpreter.y"
+ 
+ //definitions
+ #include <stdio.h>
+ #include <string.h>
+ char* add_fractions(char* frac1, char* frac2);
+
+#line 77 "gpp_interpreter.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -129,13 +138,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 6 "gpp_interpreter.y"
+#line 10 "gpp_interpreter.y"
 
 char string [20];
 char symbol;
-float valuef;
 
-#line 139 "gpp_interpreter.tab.c"
+#line 147 "gpp_interpreter.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -454,16 +462,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  14
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   49
+#define YYLAST   50
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  13
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  4
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  16
+#define YYNRULES  18
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  41
+#define YYNSTATES  42
 
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   267
@@ -511,8 +519,8 @@ static const yytype_int8 yytranslate[] =
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    35,    35,    36,    37,    40,    41,    42,    43,    44,
-      45,    46,    47,    48,    56,    57,    58
+       0,    40,    40,    41,    42,    43,    46,    51,    52,    53,
+      54,    55,    56,    57,    58,    59,    67,    68,    69
 };
 #endif
 
@@ -551,11 +559,11 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-       5,    30,    -8,    -8,     4,    -8,    -8,    18,    18,    18,
-      18,     1,    -4,    18,    -8,    37,    18,    18,    18,    18,
-      -8,    20,    18,     9,    14,    15,    24,    22,    42,    18,
-      -8,    -8,    -8,    -8,    18,    43,    -8,    -8,    45,    -8,
-      -8
+       6,    31,    -8,    -8,     4,     6,    -8,    19,    19,    19,
+      19,     1,    -4,    19,    -8,    -8,    38,    19,    19,    19,
+      19,    -8,    21,    19,    10,    15,    16,    25,    23,    43,
+      19,    -8,    -8,    -8,    -8,    19,    44,    -8,    -8,    46,
+      -8,    -8
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -563,17 +571,17 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       0,     0,    12,    13,     0,     2,     3,     0,     0,     0,
-       0,     0,     0,     0,     1,     0,     0,     0,     0,     0,
-       4,     0,     9,     0,     0,     0,     0,    12,     0,    10,
-       5,     6,     7,     8,    12,     0,    14,    11,     0,    15,
-      16
+       5,     0,    13,    14,     0,     5,     3,    15,    15,    15,
+      15,     0,     0,    15,     1,     2,     0,    15,    15,    15,
+      15,     4,    15,    10,     0,     0,     0,     0,    13,     0,
+      11,     6,     7,     8,     9,    13,     0,    16,    12,     0,
+      17,    18
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -8,    -8,    -7,    -8
+      -8,     3,    -7,    -8
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
@@ -587,20 +595,22 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      16,    17,    18,    19,    14,    20,    22,    21,     1,    23,
-      24,    25,    26,    30,    28,    29,     2,     3,    31,    32,
-      35,    15,    37,    15,     0,    15,     0,    38,    33,     2,
-       3,    27,     3,    34,     3,     7,     8,     9,    10,    11,
-      12,    13,     7,     8,     9,    10,    36,    39,    13,    40
+      17,    18,    19,    20,    14,    21,    23,    22,    15,     1,
+      24,    25,    26,    27,    31,    29,    30,     2,     3,    32,
+      33,    36,    16,    38,    16,     0,    16,     0,    39,    34,
+       2,     3,    28,     3,    35,     3,     7,     8,     9,    10,
+      11,    12,    13,     7,     8,     9,    10,    37,    40,    13,
+      41
 };
 
 static const yytype_int8 yycheck[] =
 {
-       7,     8,     9,    10,     0,     4,    13,    11,     3,    16,
-      17,    18,    19,     4,    21,    22,    11,    12,     4,     4,
-      27,     3,    29,     3,    -1,     3,    -1,    34,     4,    11,
-      12,    11,    12,    11,    12,     5,     6,     7,     8,     9,
-      10,    11,     5,     6,     7,     8,     4,     4,    11,     4
+       7,     8,     9,    10,     0,     4,    13,    11,     5,     3,
+      17,    18,    19,    20,     4,    22,    23,    11,    12,     4,
+       4,    28,     3,    30,     3,    -1,     3,    -1,    35,     4,
+      11,    12,    11,    12,    11,    12,     5,     6,     7,     8,
+       9,    10,    11,     5,     6,     7,     8,     4,     4,    11,
+       4
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -608,24 +618,24 @@ static const yytype_int8 yycheck[] =
 static const yytype_int8 yystos[] =
 {
        0,     3,    11,    12,    14,    15,    16,     5,     6,     7,
-       8,     9,    10,    11,     0,     3,    15,    15,    15,    15,
-       4,    11,    15,    15,    15,    15,    15,    11,    15,    15,
-       4,     4,     4,     4,    11,    15,     4,    15,    15,     4,
-       4
+       8,     9,    10,    11,     0,    14,     3,    15,    15,    15,
+      15,     4,    11,    15,    15,    15,    15,    15,    11,    15,
+      15,     4,     4,     4,     4,    11,    15,     4,    15,    15,
+       4,     4
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    13,    14,    14,    14,    15,    15,    15,    15,    15,
-      15,    15,    15,    15,    16,    16,    16
+       0,    13,    14,    14,    14,    14,    15,    15,    15,    15,
+      15,    15,    15,    15,    15,    15,    16,    16,    16
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     1,     1,     3,     5,     5,     5,     5,     3,
-       4,     5,     1,     1,     5,     6,     7
+       0,     2,     2,     1,     3,     0,     5,     5,     5,     5,
+       3,     4,     5,     1,     1,     0,     5,     6,     7
 };
 
 
@@ -1320,8 +1330,18 @@ yyreduce:
   YY_REDUCE_PRINT (yyn);
   switch (yyn)
     {
+  case 6:
+#line 46 "gpp_interpreter.y"
+                                    {
+         char* result = add_fractions((yyvsp[-2].string), (yyvsp[-1].string));
+         strcpy((yyval.string), result);
+         printf("%s\n", (yyval.string)); 
+         }
+#line 1341 "gpp_interpreter.tab.c"
+    break;
 
-#line 1325 "gpp_interpreter.tab.c"
+
+#line 1345 "gpp_interpreter.tab.c"
 
       default: break;
     }
@@ -1553,7 +1573,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 62 "gpp_interpreter.y"
+#line 73 "gpp_interpreter.y"
 
 
 int main() {
@@ -1564,4 +1584,22 @@ int main() {
 int yyerror(char *s) {
     fprintf(stderr, "error: %s\n", s);
     return 0;
+}
+
+char* add_fractions(char* frac1, char* frac2) {
+    // Extract numerators and denominators from frac1 and frac2
+    int num1, denom1, num2, denom2;
+    sscanf(frac1, "%db%d", &num1, &denom1);
+    sscanf(frac2, "%db%d", &num2, &denom2);
+
+    // Calculate the sum as fractions (assuming same denominator for simplicity)
+    int common_denom = denom1 * denom2;
+    int result_num = (num1 * denom2) + (num2 * denom1);
+
+    // Allocate memory for the result
+    char* result = (char*)malloc(20 * sizeof(char));
+    if (result != NULL) {
+        sprintf(result, "%db%d", result_num, common_denom);
+    }
+    return result; // Return the dynamically allocated result
 }

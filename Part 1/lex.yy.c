@@ -912,7 +912,7 @@ YY_RULE_SETUP
 case 26:
 YY_RULE_SETUP
 #line 42 "gpp_interpreter.l"
-{ printf("VALUEF\n");     }
+{ printf("VALUEF\n");  strcpy(yylval.string, yytext); return VALUEF;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
@@ -1975,3 +1975,4 @@ int yywrap() {}
 //     }
 //     return 0;
 // }
+

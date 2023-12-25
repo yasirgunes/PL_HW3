@@ -66,13 +66,12 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 6 "gpp_interpreter.y"
+#line 10 "gpp_interpreter.y"
 
 char string [20];
 char symbol;
-float valuef;
 
-#line 76 "gpp_interpreter.tab.h"
+#line 75 "gpp_interpreter.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;
