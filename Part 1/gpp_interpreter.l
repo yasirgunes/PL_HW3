@@ -8,40 +8,40 @@
 
 %%
         /* keywords */
-and           { printf("KW_AND\n");     }
-or            { printf("KW_OR\n");      }
-not           { printf("KW_NOT\n");     }
-equal         { printf("KW_EQUAL\n");   }
-less          { printf("KW_LESS\n");    }
-nil           { printf("KW_NIL\n");     }   
-list          { printf("KW_LIST\n");    }
-append        { printf("KW_APPEND\n");  }
-concat        { printf("KW_CONCAT\n");  }
-set           { printf("KW_SET\n");     }
-def           { printf("KW_DEF\n");     }
-for           { printf("KW_FOR\n");     }
-if            { printf("KW_IF\n");      }
-exit          { printf("KW_EXIT\n"); 
+and           {     }
+or            {       }
+not           {      }
+equal         {    }
+less          {     }
+nil           {      }   
+list          {     }
+append        {   }
+concat        {   }
+set           {printf("KW_SET\n"); return KW_SET; }
+def           {return KW_DEF; }
+for           {     }
+if            {       }
+exit          {  
                 return KW_EXIT; }
 load          { printf("KW_LOAD\n");    }
 display       { printf("KW_DISPLAY\n"); }
 true          { printf("KW_TRUE\n");    }
 false         { printf("KW_FALSE\n");   }
         /* operators */
-[+]           { printf("OP_PLUS\n");    return(OP_PLUS);}
-[-]           { printf("OP_MINUS\n");   return(OP_MINUS);}
-[/]           { printf("OP_DIV\n");     return(OP_DIV);}
-[*]           { printf("OP_MULT\n");    return(OP_MULT);}
-[(]           { printf("OP_OP\n");      return(OP_OP);}
-[)]           { printf("OP_CP\n");      return(OP_CP);}
-[,]           { printf("OP_COMMA\n");   }
+[+]           { return(OP_PLUS);}
+[-]           { return(OP_MINUS);}
+[/]           { return(OP_DIV);}
+[*]           { return(OP_MULT);}
+[(]           { return(OP_OP);}
+[)]           { return(OP_CP);}
+[,]           { }
 
         /* literal comment identifier */
-[0-9]+b[0-9]+           { printf("VALUEF\n");  strcpy(yylval.string, yytext); return VALUEF;}
+[0-9]+b[0-9]+           {strcpy(yylval.string, yytext); return VALUEF;}
 
-[;]{2}.*                { printf("COMMENT\n");    }
+[;]{2}.*                {}
 
-[a-zA-Z][a-zA-Z0-9]*    { printf("IDENTIFIER\n"); strcpy(yylval.string, yytext); return IDENTIFIER;}
+[a-zA-Z][a-zA-Z0-9]*    { printf("IDENTIFIER\n"); strcpy(yylval.name, yytext);  return IDENTIFIER;}
 
 [ \t\n]+                { /* ignore tab, whitespace and newline */ ;}
 

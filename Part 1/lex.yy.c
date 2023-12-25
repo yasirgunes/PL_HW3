@@ -783,72 +783,72 @@ do_action:	/* This label is used only to access EOF actions. */
 case 1:
 YY_RULE_SETUP
 #line 12 "gpp_interpreter.l"
-{ printf("KW_AND\n");     }
+{     }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
 #line 13 "gpp_interpreter.l"
-{ printf("KW_OR\n");      }
+{       }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
 #line 14 "gpp_interpreter.l"
-{ printf("KW_NOT\n");     }
+{      }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
 #line 15 "gpp_interpreter.l"
-{ printf("KW_EQUAL\n");   }
+{    }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
 #line 16 "gpp_interpreter.l"
-{ printf("KW_LESS\n");    }
+{     }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
 #line 17 "gpp_interpreter.l"
-{ printf("KW_NIL\n");     }   
+{      }   
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
 #line 18 "gpp_interpreter.l"
-{ printf("KW_LIST\n");    }
+{     }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
 #line 19 "gpp_interpreter.l"
-{ printf("KW_APPEND\n");  }
+{   }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
 #line 20 "gpp_interpreter.l"
-{ printf("KW_CONCAT\n");  }
+{   }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
 #line 21 "gpp_interpreter.l"
-{ printf("KW_SET\n");     }
+{printf("KW_SET\n"); return KW_SET; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
 #line 22 "gpp_interpreter.l"
-{ printf("KW_DEF\n");     }
+{return KW_DEF; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
 #line 23 "gpp_interpreter.l"
-{ printf("KW_FOR\n");     }
+{     }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
 #line 24 "gpp_interpreter.l"
-{ printf("KW_IF\n");      }
+{       }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
 #line 25 "gpp_interpreter.l"
-{ printf("KW_EXIT\n"); 
+{  
                 return KW_EXIT; }
 	YY_BREAK
 case 15:
@@ -875,53 +875,53 @@ YY_RULE_SETUP
 case 19:
 YY_RULE_SETUP
 #line 32 "gpp_interpreter.l"
-{ printf("OP_PLUS\n");    return(OP_PLUS);}
+{ return(OP_PLUS);}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
 #line 33 "gpp_interpreter.l"
-{ printf("OP_MINUS\n");   return(OP_MINUS);}
+{ return(OP_MINUS);}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
 #line 34 "gpp_interpreter.l"
-{ printf("OP_DIV\n");     return(OP_DIV);}
+{ return(OP_DIV);}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
 #line 35 "gpp_interpreter.l"
-{ printf("OP_MULT\n");    return(OP_MULT);}
+{ return(OP_MULT);}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
 #line 36 "gpp_interpreter.l"
-{ printf("OP_OP\n");      return(OP_OP);}
+{ return(OP_OP);}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
 #line 37 "gpp_interpreter.l"
-{ printf("OP_CP\n");      return(OP_CP);}
+{ return(OP_CP);}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
 #line 38 "gpp_interpreter.l"
-{ printf("OP_COMMA\n");   }
+{ }
 	YY_BREAK
 /* literal comment identifier */
 case 26:
 YY_RULE_SETUP
 #line 41 "gpp_interpreter.l"
-{ printf("VALUEF\n");  strcpy(yylval.string, yytext); return VALUEF;}
+{strcpy(yylval.string, yytext); return VALUEF;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
 #line 43 "gpp_interpreter.l"
-{ printf("COMMENT\n");    }
+{}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
 #line 45 "gpp_interpreter.l"
-{ printf("IDENTIFIER\n"); strcpy(yylval.string, yytext); return IDENTIFIER;}
+{ printf("IDENTIFIER\n"); strcpy(yylval.name, yytext);  return IDENTIFIER;}
 	YY_BREAK
 case 29:
 /* rule 29 can match eol */

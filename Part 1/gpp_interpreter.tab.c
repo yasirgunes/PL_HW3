@@ -71,14 +71,30 @@
  //definitions
  #include <stdio.h>
  #include <string.h>
+ #include <stdlib.h>
+
  char* add(char* frac1, char* frac2);
  char* subtract(char* frac1, char* frac2);
  char* multiply(char* frac1, char* frac2);
  char* divide(char* frac1, char* frac2);
+ 
  int gcd(int a, int b);
  void simplify_fraction(int *numerator, int *denominator);
 
-#line 82 "gpp_interpreter.tab.c"
+typedef struct variable {
+    char var_name[20];
+    char var_value[20];
+} variable;
+
+// 100 variables
+ variable variables[100];
+ int variable_count = 0;
+
+void add_variable(char* var_name, char* var_value);
+char* get_variable_value(char* var_name);
+void set_variable_value(char* var_name, char* var_value);
+
+#line 98 "gpp_interpreter.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -134,8 +150,9 @@ extern int yydebug;
     OP_DIV = 263,
     KW_EXIT = 264,
     KW_DEF = 265,
-    IDENTIFIER = 266,
-    VALUEF = 267
+    KW_SET = 266,
+    IDENTIFIER = 267,
+    VALUEF = 268
   };
 #endif
 
@@ -143,12 +160,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 15 "gpp_interpreter.y"
+#line 30 "gpp_interpreter.y"
 
-char string [20];
+char string [20]; // valuef
+char name [20]; // identifier
 char symbol;
 
-#line 152 "gpp_interpreter.tab.c"
+#line 170 "gpp_interpreter.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -467,19 +485,19 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  16
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   52
+#define YYLAST   57
 
 /* YYNTOKENS -- Number of terminals.  */
-#define YYNTOKENS  13
+#define YYNTOKENS  14
 /* YYNNTS -- Number of nonterminals.  */
-#define YYNNTS  4
+#define YYNNTS  5
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  18
+#define YYNRULES  20
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  43
+#define YYNSTATES  49
 
 #define YYUNDEFTOK  2
-#define YYMAXUTOK   267
+#define YYMAXUTOK   268
 
 
 /* YYTRANSLATE(TOKEN-NUM) -- Symbol number corresponding to TOKEN-NUM
@@ -517,15 +535,16 @@ static const yytype_int8 yytranslate[] =
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     2,     2,     2,     2,
        2,     2,     2,     2,     2,     2,     1,     2,     3,     4,
-       5,     6,     7,     8,     9,    10,    11,    12
+       5,     6,     7,     8,     9,    10,    11,    12,    13
 };
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
 static const yytype_int8 yyrline[] =
 {
-       0,    45,    45,    46,    47,    48,    51,    56,    61,    66,
-      71,    72,    73,    74,    75,    76,    84,    85,    86
+       0,    62,    62,    63,    64,    65,    66,    69,    74,    79,
+      84,    89,    90,    91,    92,   103,   105,   113,   116,   120,
+     127
 };
 #endif
 
@@ -535,8 +554,8 @@ static const yytype_int8 yyrline[] =
 static const char *const yytname[] =
 {
   "$end", "error", "$undefined", "OP_OP", "OP_CP", "OP_PLUS", "OP_MINUS",
-  "OP_MULT", "OP_DIV", "KW_EXIT", "KW_DEF", "IDENTIFIER", "VALUEF",
-  "$accept", "START", "EXP", "FUNCTION", YY_NULLPTR
+  "OP_MULT", "OP_DIV", "KW_EXIT", "KW_DEF", "KW_SET", "IDENTIFIER",
+  "VALUEF", "$accept", "START", "EXP", "FUNCTION", "SET", YY_NULLPTR
 };
 #endif
 
@@ -546,11 +565,11 @@ static const char *const yytname[] =
 static const yytype_int16 yytoknum[] =
 {
        0,   256,   257,   258,   259,   260,   261,   262,   263,   264,
-     265,   266,   267
+     265,   266,   267,   268
 };
 # endif
 
-#define YYPACT_NINF (-4)
+#define YYPACT_NINF (-9)
 
 #define yypact_value_is_default(Yyn) \
   ((Yyn) == YYPACT_NINF)
@@ -564,11 +583,11 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-       0,    34,    -4,    11,     1,     0,    -4,    11,    11,    11,
-      11,    -2,     2,    11,    41,    -4,    -4,    -4,    11,    11,
-      11,    11,    -4,    24,    11,     4,     5,    15,    20,    26,
-      21,    11,    -4,    -4,    -4,    -4,    11,    27,    -4,    -4,
-      28,    -4,    -4
+       9,    37,    -9,    -9,     8,     9,     9,     9,    14,    14,
+      14,    14,     5,    -2,    11,    14,    -9,    -9,    -9,    -9,
+      45,    14,    14,    14,    14,    -9,    26,    14,    14,     7,
+      20,    30,    31,    28,    32,    33,    14,    -9,    -9,    -9,
+      -9,    14,    50,    -9,    -9,    -9,    51,    -9,    -9
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -576,23 +595,23 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       5,     0,    13,    15,     0,     5,     3,    15,    15,    15,
-      15,     0,     0,    15,     0,    14,     1,     2,    15,    15,
-      15,    15,     4,    15,    10,     0,     0,     0,     0,    13,
-       0,    11,     6,     7,     8,     9,    13,     0,    16,    12,
-       0,    17,    18
+       6,     0,    14,    15,     0,     6,     6,     6,    16,    16,
+      16,    16,     0,     0,     0,    16,     1,     2,     3,     5,
+       0,    16,    16,    16,    16,     4,    16,    16,    11,     0,
+       0,     0,     0,    14,     0,     0,    12,     7,     8,     9,
+      10,    14,     0,    17,    20,    13,     0,    18,    19
 };
 
   /* YYPGOTO[NTERM-NUM].  */
 static const yytype_int8 yypgoto[] =
 {
-      -4,    25,    -3,    -4
+      -9,    -1,    -8,    -9,    -9
 };
 
   /* YYDEFGOTO[NTERM-NUM].  */
 static const yytype_int8 yydefgoto[] =
 {
-      -1,     4,     5,     6
+      -1,     4,     5,     6,     7
 };
 
   /* YYTABLE[YYPACT[STATE-NUM]] -- What to do in state STATE-NUM.  If
@@ -600,47 +619,49 @@ static const yytype_int8 yydefgoto[] =
      number is the opposite.  If YYTABLE_NINF, syntax error.  */
 static const yytype_int8 yytable[] =
 {
-      15,    16,    22,     1,    18,    19,    20,    21,    32,    33,
-      24,     2,     3,    23,    14,    25,    26,    27,    28,    34,
-      30,    31,     2,     3,    35,    38,    37,    14,    39,    14,
-      17,    41,    42,    40,     0,    29,     3,    36,     3,     7,
-       8,     9,    10,    11,    12,    13,     7,     8,     9,    10,
-       0,     0,    13
+      21,    22,    23,    24,    17,    18,    19,    28,    16,    25,
+      26,    37,     1,    29,    30,    31,    32,    20,    34,    35,
+      36,     2,     3,    27,    38,    42,     2,     3,    45,    20,
+       0,    20,     0,    46,    39,    40,    43,    44,    33,     3,
+      41,     3,     8,     9,    10,    11,    12,    13,    14,    15,
+       8,     9,    10,    11,    47,    48,     0,    15
 };
 
 static const yytype_int8 yycheck[] =
 {
-       3,     0,     4,     3,     7,     8,     9,    10,     4,     4,
-      13,    11,    12,    11,     3,    18,    19,    20,    21,     4,
-      23,    24,    11,    12,     4,     4,    29,     3,    31,     3,
-       5,     4,     4,    36,    -1,    11,    12,    11,    12,     5,
-       6,     7,     8,     9,    10,    11,     5,     6,     7,     8,
-      -1,    -1,    11
+       8,     9,    10,    11,     5,     6,     7,    15,     0,     4,
+      12,     4,     3,    21,    22,    23,    24,     3,    26,    27,
+      28,    12,    13,    12,     4,    33,    12,    13,    36,     3,
+      -1,     3,    -1,    41,     4,     4,     4,     4,    12,    13,
+      12,    13,     5,     6,     7,     8,     9,    10,    11,    12,
+       5,     6,     7,     8,     4,     4,    -1,    12
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
      symbol of state STATE-NUM.  */
 static const yytype_int8 yystos[] =
 {
-       0,     3,    11,    12,    14,    15,    16,     5,     6,     7,
-       8,     9,    10,    11,     3,    15,     0,    14,    15,    15,
-      15,    15,     4,    11,    15,    15,    15,    15,    15,    11,
-      15,    15,     4,     4,     4,     4,    11,    15,     4,    15,
-      15,     4,     4
+       0,     3,    12,    13,    15,    16,    17,    18,     5,     6,
+       7,     8,     9,    10,    11,    12,     0,    15,    15,    15,
+       3,    16,    16,    16,    16,     4,    12,    12,    16,    16,
+      16,    16,    16,    12,    16,    16,    16,     4,     4,     4,
+       4,    12,    16,     4,     4,    16,    16,     4,     4
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
-       0,    13,    14,    14,    14,    14,    15,    15,    15,    15,
-      15,    15,    15,    15,    15,    15,    16,    16,    16
+       0,    14,    15,    15,    15,    15,    15,    16,    16,    16,
+      16,    16,    16,    16,    16,    16,    16,    17,    17,    17,
+      18
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
-       0,     2,     2,     1,     3,     0,     5,     5,     5,     5,
-       3,     4,     5,     1,     2,     0,     5,     6,     7
+       0,     2,     2,     2,     3,     2,     0,     5,     5,     5,
+       5,     3,     4,     5,     1,     1,     0,     5,     6,     7,
+       5
 };
 
 
@@ -1336,53 +1357,102 @@ yyreduce:
   switch (yyn)
     {
   case 4:
-#line 47 "gpp_interpreter.y"
+#line 64 "gpp_interpreter.y"
                                   { printf("Exiting...\n"); exit(0); }
-#line 1342 "gpp_interpreter.tab.c"
+#line 1363 "gpp_interpreter.tab.c"
     break;
 
-  case 6:
-#line 51 "gpp_interpreter.y"
+  case 7:
+#line 69 "gpp_interpreter.y"
                                     {
          char* result = add((yyvsp[-2].string), (yyvsp[-1].string));
          strcpy((yyval.string), result);
          printf("%s\n", (yyval.string)); 
          }
-#line 1352 "gpp_interpreter.tab.c"
+#line 1373 "gpp_interpreter.tab.c"
     break;
 
-  case 7:
-#line 56 "gpp_interpreter.y"
+  case 8:
+#line 74 "gpp_interpreter.y"
                                     {
         char* result = subtract((yyvsp[-2].string), (yyvsp[-1].string));
         strcpy((yyval.string), result);
         printf("%s\n", (yyval.string)); 
     }
-#line 1362 "gpp_interpreter.tab.c"
+#line 1383 "gpp_interpreter.tab.c"
     break;
 
-  case 8:
-#line 61 "gpp_interpreter.y"
+  case 9:
+#line 79 "gpp_interpreter.y"
                                     {
         char* result = multiply((yyvsp[-2].string), (yyvsp[-1].string));
         strcpy((yyval.string), result);
         printf("%s\n", (yyval.string)); 
     }
-#line 1372 "gpp_interpreter.tab.c"
+#line 1393 "gpp_interpreter.tab.c"
     break;
 
-  case 9:
-#line 66 "gpp_interpreter.y"
+  case 10:
+#line 84 "gpp_interpreter.y"
                                     {
         char* result = divide((yyvsp[-2].string), (yyvsp[-1].string));
         strcpy((yyval.string), result);
         printf("%s\n", (yyval.string)); 
     }
-#line 1382 "gpp_interpreter.tab.c"
+#line 1403 "gpp_interpreter.tab.c"
+    break;
+
+  case 14:
+#line 92 "gpp_interpreter.y"
+                 {
+        // if the variable exists, return its value else add it to the symbol table
+        char* var_value = get_variable_value((yyvsp[0].name));
+        if (var_value != NULL) {
+            strcpy((yyval.string), var_value);
+        }
+        else {
+            add_variable((yyvsp[0].name), "0b1");
+            strcpy((yyval.string), "0b1");
+        }
+    }
+#line 1419 "gpp_interpreter.tab.c"
+    break;
+
+  case 17:
+#line 113 "gpp_interpreter.y"
+                                      {
+        printf("Function %s defined\n", (yyvsp[-2].name));
+    }
+#line 1427 "gpp_interpreter.tab.c"
+    break;
+
+  case 18:
+#line 117 "gpp_interpreter.y"
+    {
+        printf("Function %s defined\n", (yyvsp[-3].name));
+    }
+#line 1435 "gpp_interpreter.tab.c"
+    break;
+
+  case 19:
+#line 121 "gpp_interpreter.y"
+    {
+        printf("Function %s defined\n", (yyvsp[-4].name));
+    }
+#line 1443 "gpp_interpreter.tab.c"
+    break;
+
+  case 20:
+#line 127 "gpp_interpreter.y"
+                                      {
+        set_variable_value((yyvsp[-2].name), (yyvsp[-1].string));
+        printf("Variable %s set to %s\n", (yyvsp[-2].name), (yyvsp[-1].string));
+    }
+#line 1452 "gpp_interpreter.tab.c"
     break;
 
 
-#line 1386 "gpp_interpreter.tab.c"
+#line 1456 "gpp_interpreter.tab.c"
 
       default: break;
     }
@@ -1614,7 +1684,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 90 "gpp_interpreter.y"
+#line 133 "gpp_interpreter.y"
 
 
 int main() {
@@ -1726,4 +1796,30 @@ char* divide(char* frac1, char* frac2) {
         sprintf(result, "%db%d", result_num, result_denom);
     }
     return result; // Return the dynamically allocated result
+}
+
+// symbol table functions
+void add_variable(char* var_name, char* var_value) {
+    strcpy(variables[variable_count].var_name, var_name);
+    strcpy(variables[variable_count].var_value, var_value);
+    variable_count++;
+}
+
+char* get_variable_value(char* var_name) {
+    for (int i = 0; i < variable_count; i++) {
+        if (strcmp(variables[i].var_name, var_name) == 0) {
+            return variables[i].var_value;
+        }
+    }
+    return NULL;
+}
+
+void set_variable_value(char* var_name, char* var_value) {
+    for (int i = 0; i < variable_count; i++) {
+        if (strcmp(variables[i].var_name, var_name) == 0) {
+            strcpy(variables[i].var_value, var_value);
+            return;
+        }
+    }
+    add_variable(var_name, var_value);
 }

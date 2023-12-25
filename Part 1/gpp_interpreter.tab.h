@@ -57,8 +57,9 @@ extern int yydebug;
     OP_DIV = 263,
     KW_EXIT = 264,
     KW_DEF = 265,
-    IDENTIFIER = 266,
-    VALUEF = 267
+    KW_SET = 266,
+    IDENTIFIER = 267,
+    VALUEF = 268
   };
 #endif
 
@@ -66,12 +67,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 15 "gpp_interpreter.y"
+#line 30 "gpp_interpreter.y"
 
-char string [20];
+char string [20]; // valuef
+char name [20]; // identifier
 char symbol;
 
-#line 75 "gpp_interpreter.tab.h"
+#line 77 "gpp_interpreter.tab.h"
 
 };
 typedef union YYSTYPE YYSTYPE;

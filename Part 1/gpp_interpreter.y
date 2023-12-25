@@ -2,18 +2,34 @@
  //definitions
  #include <stdio.h>
  #include <string.h>
+ #include <stdlib.h>
+
  char* add(char* frac1, char* frac2);
  char* subtract(char* frac1, char* frac2);
  char* multiply(char* frac1, char* frac2);
  char* divide(char* frac1, char* frac2);
+ 
  int gcd(int a, int b);
  void simplify_fraction(int *numerator, int *denominator);
-%}
 
+typedef struct variable {
+    char var_name[20];
+    char var_value[20];
+} variable;
+
+// 100 variables
+ variable variables[100];
+ int variable_count = 0;
+
+void add_variable(char* var_name, char* var_value);
+char* get_variable_value(char* var_name);
+void set_variable_value(char* var_name, char* var_value);
+%}
 
 // rules
 %union{
-char string [20];
+char string [20]; // valuef
+char name [20]; // identifier
 char symbol;
 }
 
@@ -28,9 +44,10 @@ char symbol;
 /* keywords */
 %token <string> KW_EXIT
 %token <string> KW_DEF
+%token <string> KW_SET
 
 /* identifier */
-%token <string> IDENTIFIER
+%token <name> IDENTIFIER
 
 /* value */
 %token <string> VALUEF
@@ -43,8 +60,9 @@ char symbol;
 
 START:
     EXP START
-    | FUNCTION
+    | FUNCTION START
     | OP_OP KW_EXIT OP_CP         { printf("Exiting...\n"); exit(0); }
+    | SET START
     |
     ;   
 EXP: /* An expression always returns a fraction */
@@ -69,10 +87,20 @@ EXP: /* An expression always returns a fraction */
         printf("%s\n", $$); 
     }
     | OP_OP IDENTIFIER EXP          
-    | OP_OP IDENTIFIER EXP EXP      
-    | OP_OP IDENTIFIER EXP EXP EXP  
-    | IDENTIFIER                    
-    | VALUEF                        
+    | OP_OP IDENTIFIER EXP EXP       
+    | OP_OP IDENTIFIER EXP EXP EXP 
+    | IDENTIFIER {
+        // if the variable exists, return its value else add it to the symbol table
+        char* var_value = get_variable_value($1);
+        if (var_value != NULL) {
+            strcpy($$, var_value);
+        }
+        else {
+            add_variable($1, "0b1");
+            strcpy($$, "0b1");
+        }
+    }                    
+    | VALUEF  
     |
     ;
 
@@ -81,11 +109,25 @@ EXP: /* An expression always returns a fraction */
  expression evaluated
 */
 FUNCTION:
-    OP_OP KW_DEF IDENTIFIER EXP OP_CP
+    OP_OP KW_DEF IDENTIFIER EXP OP_CP {
+        printf("Function %s defined\n", $3);
+    }
     | OP_OP KW_DEF IDENTIFIER IDENTIFIER EXP OP_CP
-    | OP_OP KW_DEF IDENTIFIER IDENTIFIER IDENTIFIER EXP OP_CP
+    {
+        printf("Function %s defined\n", $3);
+    }
+    | OP_OP KW_DEF IDENTIFIER IDENTIFIER IDENTIFIER EXP OP_CP 
+    {
+        printf("Function %s defined\n", $3);
+    }
     ;
 
+SET:
+    OP_OP KW_SET IDENTIFIER EXP OP_CP {
+        set_variable_value($3, $4);
+        printf("Variable %s set to %s\n", $3, $4);
+    }
+    ;
 
 %%
 
@@ -198,4 +240,30 @@ char* divide(char* frac1, char* frac2) {
         sprintf(result, "%db%d", result_num, result_denom);
     }
     return result; // Return the dynamically allocated result
+}
+
+// symbol table functions
+void add_variable(char* var_name, char* var_value) {
+    strcpy(variables[variable_count].var_name, var_name);
+    strcpy(variables[variable_count].var_value, var_value);
+    variable_count++;
+}
+
+char* get_variable_value(char* var_name) {
+    for (int i = 0; i < variable_count; i++) {
+        if (strcmp(variables[i].var_name, var_name) == 0) {
+            return variables[i].var_value;
+        }
+    }
+    return NULL;
+}
+
+void set_variable_value(char* var_name, char* var_value) {
+    for (int i = 0; i < variable_count; i++) {
+        if (strcmp(variables[i].var_name, var_name) == 0) {
+            strcpy(variables[i].var_value, var_value);
+            return;
+        }
+    }
+    add_variable(var_name, var_value);
 }
