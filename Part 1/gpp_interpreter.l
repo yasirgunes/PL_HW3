@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "gpp_interpreter.tab.h"
+extern int inFunction;
 %}
 
 
@@ -18,7 +19,7 @@ list          {     }
 append        {   }
 concat        {   }
 set           {printf("KW_SET\n"); return KW_SET; }
-def           {return KW_DEF; }
+def           {inFunction = 1; return KW_DEF; }
 for           {     }
 if            {       }
 exit          {  
@@ -41,7 +42,7 @@ false         { printf("KW_FALSE\n");   }
 
 [;]{2}.*                {}
 
-[a-zA-Z][a-zA-Z0-9]*    { printf("IDENTIFIER\n"); strcpy(yylval.name, yytext);  return IDENTIFIER;}
+[a-zA-Z][a-zA-Z0-9]*    {  strcpy(yylval.name, yytext);  return IDENTIFIER;}
 
 [ \t\n]+                { /* ignore tab, whitespace and newline */ ;}
 

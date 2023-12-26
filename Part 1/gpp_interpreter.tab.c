@@ -90,11 +90,24 @@ typedef struct variable {
  variable variables[100];
  int variable_count = 0;
 
+// function prototype
+typedef struct function {
+    char func_name[20];
+    char exp_type[20];
+} function;
+
+// 100 functions
+ function functions[100];
+ int function_count = 0;
+
+ int inFunction = 0; // flag to check if we are in a function => for scoping
+
+// symbol table functions
 void add_variable(char* var_name, char* var_value);
 char* get_variable_value(char* var_name);
 void set_variable_value(char* var_name, char* var_value);
 
-#line 98 "gpp_interpreter.tab.c"
+#line 111 "gpp_interpreter.tab.c"
 
 # ifndef YY_CAST
 #  ifdef __cplusplus
@@ -160,13 +173,13 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 30 "gpp_interpreter.y"
+#line 43 "gpp_interpreter.y"
 
 char string [20]; // valuef
 char name [20]; // identifier
 char symbol;
 
-#line 170 "gpp_interpreter.tab.c"
+#line 183 "gpp_interpreter.tab.c"
 
 };
 typedef union YYSTYPE YYSTYPE;
@@ -485,16 +498,16 @@ union yyalloc
 /* YYFINAL -- State number of the termination state.  */
 #define YYFINAL  16
 /* YYLAST -- Last index in YYTABLE.  */
-#define YYLAST   57
+#define YYLAST   60
 
 /* YYNTOKENS -- Number of terminals.  */
 #define YYNTOKENS  14
 /* YYNNTS -- Number of nonterminals.  */
 #define YYNNTS  5
 /* YYNRULES -- Number of rules.  */
-#define YYNRULES  20
+#define YYNRULES  21
 /* YYNSTATES -- Number of states.  */
-#define YYNSTATES  49
+#define YYNSTATES  50
 
 #define YYUNDEFTOK  2
 #define YYMAXUTOK   268
@@ -540,11 +553,11 @@ static const yytype_int8 yytranslate[] =
 
 #if YYDEBUG
   /* YYRLINE[YYN] -- Source line where rule number YYN was defined.  */
-static const yytype_int8 yyrline[] =
+static const yytype_int16 yyrline[] =
 {
-       0,    62,    62,    63,    64,    65,    66,    69,    74,    79,
-      84,    89,    90,    91,    92,   103,   105,   113,   116,   120,
-     127
+       0,    75,    75,    76,    77,    78,    79,    82,   108,   134,
+     160,   186,   187,   188,   190,   236,   249,   250,   258,   261,
+     265,   275
 };
 #endif
 
@@ -583,11 +596,11 @@ static const yytype_int16 yytoknum[] =
      STATE-NUM.  */
 static const yytype_int8 yypact[] =
 {
-       9,    37,    -9,    -9,     8,     9,     9,     9,    14,    14,
-      14,    14,     5,    -2,    11,    14,    -9,    -9,    -9,    -9,
-      45,    14,    14,    14,    14,    -9,    26,    14,    14,     7,
-      20,    30,    31,    28,    32,    33,    14,    -9,    -9,    -9,
-      -9,    14,    50,    -9,    -9,    -9,    51,    -9,    -9
+      14,    40,    -9,    -9,     8,    14,    14,    14,    26,    26,
+      26,    26,     5,    -2,     0,    26,    -9,    -9,    -9,    -9,
+      48,    26,    26,    26,    26,    -9,    29,    26,    26,     7,
+      19,    20,    32,    31,    33,    36,    18,    -9,    -9,    -9,
+      -9,    26,    53,    -9,    -9,    -9,    -9,    54,    -9,    -9
 };
 
   /* YYDEFACT[STATE-NUM] -- Default reduction number in state STATE-NUM.
@@ -595,11 +608,11 @@ static const yytype_int8 yypact[] =
      means the default is an error.  */
 static const yytype_int8 yydefact[] =
 {
-       6,     0,    14,    15,     0,     6,     6,     6,    16,    16,
-      16,    16,     0,     0,     0,    16,     1,     2,     3,     5,
-       0,    16,    16,    16,    16,     4,    16,    16,    11,     0,
-       0,     0,     0,    14,     0,     0,    12,     7,     8,     9,
-      10,    14,     0,    17,    20,    13,     0,    18,    19
+       6,     0,    15,    16,     0,     6,     6,     6,    17,    17,
+      17,    17,     0,     0,     0,    17,     1,     2,     3,     5,
+       0,    17,    17,    17,    17,     4,    17,    17,    11,     0,
+       0,     0,     0,    15,     0,     0,    12,     7,     8,     9,
+      10,    15,     0,    18,    21,    14,    13,     0,    19,    20
 };
 
   /* YYPGOTO[NTERM-NUM].  */
@@ -620,21 +633,23 @@ static const yytype_int8 yydefgoto[] =
 static const yytype_int8 yytable[] =
 {
       21,    22,    23,    24,    17,    18,    19,    28,    16,    25,
-      26,    37,     1,    29,    30,    31,    32,    20,    34,    35,
-      36,     2,     3,    27,    38,    42,     2,     3,    45,    20,
-       0,    20,     0,    46,    39,    40,    43,    44,    33,     3,
-      41,     3,     8,     9,    10,    11,    12,    13,    14,    15,
-       8,     9,    10,    11,    47,    48,     0,    15
+      26,    37,    27,    29,    30,    31,    32,     1,    34,    35,
+      36,    20,    45,    38,    39,    42,     2,     3,    46,    20,
+       2,     3,    20,    47,    20,     0,    40,    43,     2,     3,
+      44,    33,     3,    41,     3,     8,     9,    10,    11,    12,
+      13,    14,    15,     8,     9,    10,    11,    48,    49,     0,
+      15
 };
 
 static const yytype_int8 yycheck[] =
 {
        8,     9,    10,    11,     5,     6,     7,    15,     0,     4,
-      12,     4,     3,    21,    22,    23,    24,     3,    26,    27,
-      28,    12,    13,    12,     4,    33,    12,    13,    36,     3,
-      -1,     3,    -1,    41,     4,     4,     4,     4,    12,    13,
-      12,    13,     5,     6,     7,     8,     9,    10,    11,    12,
-       5,     6,     7,     8,     4,     4,    -1,    12
+      12,     4,    12,    21,    22,    23,    24,     3,    26,    27,
+      28,     3,     4,     4,     4,    33,    12,    13,    36,     3,
+      12,    13,     3,    41,     3,    -1,     4,     4,    12,    13,
+       4,    12,    13,    12,    13,     5,     6,     7,     8,     9,
+      10,    11,    12,     5,     6,     7,     8,     4,     4,    -1,
+      12
 };
 
   /* YYSTOS[STATE-NUM] -- The (internal number of the) accessing
@@ -645,23 +660,23 @@ static const yytype_int8 yystos[] =
        7,     8,     9,    10,    11,    12,     0,    15,    15,    15,
        3,    16,    16,    16,    16,     4,    12,    12,    16,    16,
       16,    16,    16,    12,    16,    16,    16,     4,     4,     4,
-       4,    12,    16,     4,     4,    16,    16,     4,     4
+       4,    12,    16,     4,     4,     4,    16,    16,     4,     4
 };
 
   /* YYR1[YYN] -- Symbol number of symbol that rule YYN derives.  */
 static const yytype_int8 yyr1[] =
 {
        0,    14,    15,    15,    15,    15,    15,    16,    16,    16,
-      16,    16,    16,    16,    16,    16,    16,    17,    17,    17,
-      18
+      16,    16,    16,    16,    16,    16,    16,    16,    17,    17,
+      17,    18
 };
 
   /* YYR2[YYN] -- Number of symbols on the right hand side of rule YYN.  */
 static const yytype_int8 yyr2[] =
 {
        0,     2,     2,     2,     3,     2,     0,     5,     5,     5,
-       5,     3,     4,     5,     1,     1,     0,     5,     6,     7,
-       5
+       5,     3,     4,     5,     5,     1,     1,     0,     5,     6,
+       7,     5
 };
 
 
@@ -1357,102 +1372,242 @@ yyreduce:
   switch (yyn)
     {
   case 4:
-#line 64 "gpp_interpreter.y"
+#line 77 "gpp_interpreter.y"
                                   { printf("Exiting...\n"); exit(0); }
-#line 1363 "gpp_interpreter.tab.c"
+#line 1378 "gpp_interpreter.tab.c"
     break;
 
   case 7:
-#line 69 "gpp_interpreter.y"
+#line 82 "gpp_interpreter.y"
                                     {
-         char* result = add((yyvsp[-2].string), (yyvsp[-1].string));
-         strcpy((yyval.string), result);
-         printf("%s\n", (yyval.string)); 
-         }
-#line 1373 "gpp_interpreter.tab.c"
+        if(inFunction == 0) {
+            char exp3_value[20];
+            char exp4_value[20];
+            strcpy(exp3_value, (yyvsp[-2].string));
+            strcpy(exp4_value, (yyvsp[-1].string));
+
+            // if exp is an identifier like x. handle it.
+            for(int i = 0; i < variable_count; i++) {
+                if(strcmp(variables[i].var_name, (yyvsp[-2].string)) == 0) {
+                    strcpy(exp3_value, variables[i].var_value);
+                }
+            }
+            for(int i = 0; i < variable_count; i++) {
+                if(strcmp(variables[i].var_name, (yyvsp[-1].string)) == 0) {
+                    strcpy(exp4_value, variables[i].var_value);
+                }
+            }
+            char* result = add(exp3_value, exp4_value);
+            strcpy((yyval.string), result);
+            printf("%s\n", (yyval.string)); 
+        }
+        else {
+            strcpy(functions[function_count].exp_type, "add");
+        }
+    }
+#line 1409 "gpp_interpreter.tab.c"
     break;
 
   case 8:
-#line 74 "gpp_interpreter.y"
+#line 108 "gpp_interpreter.y"
                                     {
-        char* result = subtract((yyvsp[-2].string), (yyvsp[-1].string));
-        strcpy((yyval.string), result);
-        printf("%s\n", (yyval.string)); 
+        if(inFunction == 0) {
+            char exp3_value[20];
+            char exp4_value[20];
+            strcpy(exp3_value, (yyvsp[-2].string));
+            strcpy(exp4_value, (yyvsp[-1].string));
+
+            // if exp is an identifier like x. handle it.
+            for(int i = 0; i < variable_count; i++) {
+                if(strcmp(variables[i].var_name, (yyvsp[-2].string)) == 0) {
+                    strcpy(exp3_value, variables[i].var_value);
+                }
+            }
+            for(int i = 0; i < variable_count; i++) {
+                if(strcmp(variables[i].var_name, (yyvsp[-1].string)) == 0) {
+                    strcpy(exp4_value, variables[i].var_value);
+                }
+            }
+            char* result = subtract(exp3_value, exp4_value);
+            strcpy((yyval.string), result);
+            printf("%s\n", (yyval.string)); 
+        }
+        else {
+            strcpy(functions[function_count].exp_type, "subtract");
+        }
     }
-#line 1383 "gpp_interpreter.tab.c"
+#line 1440 "gpp_interpreter.tab.c"
     break;
 
   case 9:
-#line 79 "gpp_interpreter.y"
+#line 134 "gpp_interpreter.y"
                                     {
-        char* result = multiply((yyvsp[-2].string), (yyvsp[-1].string));
-        strcpy((yyval.string), result);
-        printf("%s\n", (yyval.string)); 
+        if(inFunction == 0) {
+            char exp3_value[20];
+            char exp4_value[20];
+            strcpy(exp3_value, (yyvsp[-2].string));
+            strcpy(exp4_value, (yyvsp[-1].string));
+
+            // if exp is an identifier like x. handle it.
+            for(int i = 0; i < variable_count; i++) {
+                if(strcmp(variables[i].var_name, (yyvsp[-2].string)) == 0) {
+                    strcpy(exp3_value, variables[i].var_value);
+                }
+            }
+            for(int i = 0; i < variable_count; i++) {
+                if(strcmp(variables[i].var_name, (yyvsp[-1].string)) == 0) {
+                    strcpy(exp4_value, variables[i].var_value);
+                }
+            }
+            char* result = multiply(exp3_value, exp4_value);
+            strcpy((yyval.string), result);
+            printf("%s\n", (yyval.string)); 
+        }
+        else {
+            strcpy(functions[function_count].exp_type, "multiply");
+        }
     }
-#line 1393 "gpp_interpreter.tab.c"
+#line 1471 "gpp_interpreter.tab.c"
     break;
 
   case 10:
-#line 84 "gpp_interpreter.y"
+#line 160 "gpp_interpreter.y"
                                     {
-        char* result = divide((yyvsp[-2].string), (yyvsp[-1].string));
-        strcpy((yyval.string), result);
-        printf("%s\n", (yyval.string)); 
+        if(inFunction == 0) {
+            char exp3_value[20];
+            char exp4_value[20];
+            strcpy(exp3_value, (yyvsp[-2].string));
+            strcpy(exp4_value, (yyvsp[-1].string));
+
+            // if exp is an identifier like x. handle it.
+            for(int i = 0; i < variable_count; i++) {
+                if(strcmp(variables[i].var_name, (yyvsp[-2].string)) == 0) {
+                    strcpy(exp3_value, variables[i].var_value);
+                }
+            }
+            for(int i = 0; i < variable_count; i++) {
+                if(strcmp(variables[i].var_name, (yyvsp[-1].string)) == 0) {
+                    strcpy(exp4_value, variables[i].var_value);
+                }
+            }
+            char* result = divide(exp3_value, exp4_value);
+            strcpy((yyval.string), result);
+            printf("%s\n", (yyval.string)); 
+        }
+        else {
+            strcpy(functions[function_count].exp_type, "divide");
+        }
     }
-#line 1403 "gpp_interpreter.tab.c"
+#line 1502 "gpp_interpreter.tab.c"
     break;
 
   case 14:
-#line 92 "gpp_interpreter.y"
-                 {
-        // if the variable exists, return its value else add it to the symbol table
-        char* var_value = get_variable_value((yyvsp[0].name));
-        if (var_value != NULL) {
-            strcpy((yyval.string), var_value);
+#line 190 "gpp_interpreter.y"
+                                     {
+        char exp3_value[20];
+        char exp4_value[20];
+        strcpy(exp3_value, (yyvsp[-2].string));
+        strcpy(exp4_value, (yyvsp[-1].string));
+
+        // if exp is an identifier like x. handle it.
+        for(int i = 0; i < variable_count; i++) {
+            if(strcmp(variables[i].var_name, (yyvsp[-2].string)) == 0) {
+                strcpy(exp3_value, variables[i].var_value);
+            }
         }
-        else {
-            add_variable((yyvsp[0].name), "0b1");
-            strcpy((yyval.string), "0b1");
+        for(int i = 0; i < variable_count; i++) {
+            if(strcmp(variables[i].var_name, (yyvsp[-1].string)) == 0) {
+                strcpy(exp4_value, variables[i].var_value);
+            }
+        }
+
+        // calculate the result based on the function's exp_type
+        char exp_type[20];
+        for(int i = 0; i < function_count; i++) {
+            if(strcmp(functions[i].func_name, (yyvsp[-3].name)) == 0) {
+                strcpy(exp_type, functions[i].exp_type);
+            }
+        }
+        if(strcmp(exp_type, "add") == 0) {
+            char* result = add(exp3_value, exp4_value);
+            strcpy((yyval.string), result);
+            printf("%s\n", (yyval.string)); 
+        }
+        else if(strcmp(exp_type, "subtract") == 0) {
+            char* result = subtract(exp3_value, exp4_value);
+            strcpy((yyval.string), result);
+            printf("%s\n", (yyval.string)); 
+        }
+        else if(strcmp(exp_type, "multiply") == 0) {
+            char* result = multiply(exp3_value, exp4_value);
+            strcpy((yyval.string), result);
+            printf("%s\n", (yyval.string)); 
+        }
+        else if(strcmp(exp_type, "divide") == 0) {
+            char* result = divide(exp3_value, exp4_value);
+            strcpy((yyval.string), result);
+            printf("%s\n", (yyval.string)); 
         }
     }
-#line 1419 "gpp_interpreter.tab.c"
+#line 1553 "gpp_interpreter.tab.c"
     break;
 
-  case 17:
-#line 113 "gpp_interpreter.y"
-                                      {
-        printf("Function %s defined\n", (yyvsp[-2].name));
+  case 15:
+#line 236 "gpp_interpreter.y"
+                 {
+        // if the variable exists do nothing else add it to the symbol table
+        int exists = 0; 
+        for(int i = 0; i < variable_count; i++) {
+            if(strcmp(variables[i].var_name, (yyvsp[0].name)) == 0) {
+                exists = 1;
+                break;
+            }
+        }
+        if(exists == 0) {
+            add_variable((yyvsp[0].name), "0b1");
+        }
     }
-#line 1427 "gpp_interpreter.tab.c"
+#line 1571 "gpp_interpreter.tab.c"
     break;
 
   case 18:
-#line 117 "gpp_interpreter.y"
-    {
-        printf("Function %s defined\n", (yyvsp[-3].name));
+#line 258 "gpp_interpreter.y"
+                                      {
+        printf("Function %s defined\n", (yyvsp[-2].name));
     }
-#line 1435 "gpp_interpreter.tab.c"
+#line 1579 "gpp_interpreter.tab.c"
     break;
 
   case 19:
-#line 121 "gpp_interpreter.y"
+#line 262 "gpp_interpreter.y"
     {
-        printf("Function %s defined\n", (yyvsp[-4].name));
+        printf("Function %s defined\n", (yyvsp[-3].name));
     }
-#line 1443 "gpp_interpreter.tab.c"
+#line 1587 "gpp_interpreter.tab.c"
     break;
 
   case 20:
-#line 127 "gpp_interpreter.y"
+#line 266 "gpp_interpreter.y"
+    {
+        inFunction = 0;
+        strcpy(functions[function_count].func_name, (yyvsp[-4].name));
+        function_count++;
+        printf("Function %s defined\n", (yyvsp[-4].name));
+    }
+#line 1598 "gpp_interpreter.tab.c"
+    break;
+
+  case 21:
+#line 275 "gpp_interpreter.y"
                                       {
         set_variable_value((yyvsp[-2].name), (yyvsp[-1].string));
         printf("Variable %s set to %s\n", (yyvsp[-2].name), (yyvsp[-1].string));
     }
-#line 1452 "gpp_interpreter.tab.c"
+#line 1607 "gpp_interpreter.tab.c"
     break;
 
 
-#line 1456 "gpp_interpreter.tab.c"
+#line 1611 "gpp_interpreter.tab.c"
 
       default: break;
     }
@@ -1684,7 +1839,7 @@ yyreturn:
 #endif
   return yyresult;
 }
-#line 133 "gpp_interpreter.y"
+#line 281 "gpp_interpreter.y"
 
 
 int main() {
@@ -1811,7 +1966,7 @@ char* get_variable_value(char* var_name) {
             return variables[i].var_value;
         }
     }
-    return NULL;
+    return "0b1";
 }
 
 void set_variable_value(char* var_name, char* var_value) {

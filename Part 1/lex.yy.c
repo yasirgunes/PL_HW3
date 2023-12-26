@@ -501,8 +501,9 @@ char *yytext;
 #include <stdlib.h>
 #include <string.h>
 #include "gpp_interpreter.tab.h"
-#line 505 "lex.yy.c"
+extern int inFunction;
 #line 506 "lex.yy.c"
+#line 507 "lex.yy.c"
 
 #define INITIAL 0
 
@@ -719,11 +720,11 @@ YY_DECL
 		}
 
 	{
-#line 9 "gpp_interpreter.l"
+#line 10 "gpp_interpreter.l"
 
-#line 11 "gpp_interpreter.l"
+#line 12 "gpp_interpreter.l"
         /* keywords */
-#line 727 "lex.yy.c"
+#line 728 "lex.yy.c"
 
 	while ( /*CONSTCOND*/1 )		/* loops until end-of-file is reached */
 		{
@@ -782,161 +783,161 @@ do_action:	/* This label is used only to access EOF actions. */
 
 case 1:
 YY_RULE_SETUP
-#line 12 "gpp_interpreter.l"
+#line 13 "gpp_interpreter.l"
 {     }
 	YY_BREAK
 case 2:
 YY_RULE_SETUP
-#line 13 "gpp_interpreter.l"
+#line 14 "gpp_interpreter.l"
 {       }
 	YY_BREAK
 case 3:
 YY_RULE_SETUP
-#line 14 "gpp_interpreter.l"
+#line 15 "gpp_interpreter.l"
 {      }
 	YY_BREAK
 case 4:
 YY_RULE_SETUP
-#line 15 "gpp_interpreter.l"
+#line 16 "gpp_interpreter.l"
 {    }
 	YY_BREAK
 case 5:
 YY_RULE_SETUP
-#line 16 "gpp_interpreter.l"
+#line 17 "gpp_interpreter.l"
 {     }
 	YY_BREAK
 case 6:
 YY_RULE_SETUP
-#line 17 "gpp_interpreter.l"
+#line 18 "gpp_interpreter.l"
 {      }   
 	YY_BREAK
 case 7:
 YY_RULE_SETUP
-#line 18 "gpp_interpreter.l"
+#line 19 "gpp_interpreter.l"
 {     }
 	YY_BREAK
 case 8:
 YY_RULE_SETUP
-#line 19 "gpp_interpreter.l"
+#line 20 "gpp_interpreter.l"
 {   }
 	YY_BREAK
 case 9:
 YY_RULE_SETUP
-#line 20 "gpp_interpreter.l"
+#line 21 "gpp_interpreter.l"
 {   }
 	YY_BREAK
 case 10:
 YY_RULE_SETUP
-#line 21 "gpp_interpreter.l"
+#line 22 "gpp_interpreter.l"
 {printf("KW_SET\n"); return KW_SET; }
 	YY_BREAK
 case 11:
 YY_RULE_SETUP
-#line 22 "gpp_interpreter.l"
-{return KW_DEF; }
+#line 23 "gpp_interpreter.l"
+{inFunction = 1; return KW_DEF; }
 	YY_BREAK
 case 12:
 YY_RULE_SETUP
-#line 23 "gpp_interpreter.l"
+#line 24 "gpp_interpreter.l"
 {     }
 	YY_BREAK
 case 13:
 YY_RULE_SETUP
-#line 24 "gpp_interpreter.l"
+#line 25 "gpp_interpreter.l"
 {       }
 	YY_BREAK
 case 14:
 YY_RULE_SETUP
-#line 25 "gpp_interpreter.l"
+#line 26 "gpp_interpreter.l"
 {  
                 return KW_EXIT; }
 	YY_BREAK
 case 15:
 YY_RULE_SETUP
-#line 27 "gpp_interpreter.l"
+#line 28 "gpp_interpreter.l"
 { printf("KW_LOAD\n");    }
 	YY_BREAK
 case 16:
 YY_RULE_SETUP
-#line 28 "gpp_interpreter.l"
+#line 29 "gpp_interpreter.l"
 { printf("KW_DISPLAY\n"); }
 	YY_BREAK
 case 17:
 YY_RULE_SETUP
-#line 29 "gpp_interpreter.l"
+#line 30 "gpp_interpreter.l"
 { printf("KW_TRUE\n");    }
 	YY_BREAK
 case 18:
 YY_RULE_SETUP
-#line 30 "gpp_interpreter.l"
+#line 31 "gpp_interpreter.l"
 { printf("KW_FALSE\n");   }
 	YY_BREAK
 /* operators */
 case 19:
 YY_RULE_SETUP
-#line 32 "gpp_interpreter.l"
+#line 33 "gpp_interpreter.l"
 { return(OP_PLUS);}
 	YY_BREAK
 case 20:
 YY_RULE_SETUP
-#line 33 "gpp_interpreter.l"
+#line 34 "gpp_interpreter.l"
 { return(OP_MINUS);}
 	YY_BREAK
 case 21:
 YY_RULE_SETUP
-#line 34 "gpp_interpreter.l"
+#line 35 "gpp_interpreter.l"
 { return(OP_DIV);}
 	YY_BREAK
 case 22:
 YY_RULE_SETUP
-#line 35 "gpp_interpreter.l"
+#line 36 "gpp_interpreter.l"
 { return(OP_MULT);}
 	YY_BREAK
 case 23:
 YY_RULE_SETUP
-#line 36 "gpp_interpreter.l"
+#line 37 "gpp_interpreter.l"
 { return(OP_OP);}
 	YY_BREAK
 case 24:
 YY_RULE_SETUP
-#line 37 "gpp_interpreter.l"
+#line 38 "gpp_interpreter.l"
 { return(OP_CP);}
 	YY_BREAK
 case 25:
 YY_RULE_SETUP
-#line 38 "gpp_interpreter.l"
+#line 39 "gpp_interpreter.l"
 { }
 	YY_BREAK
 /* literal comment identifier */
 case 26:
 YY_RULE_SETUP
-#line 41 "gpp_interpreter.l"
+#line 42 "gpp_interpreter.l"
 {strcpy(yylval.string, yytext); return VALUEF;}
 	YY_BREAK
 case 27:
 YY_RULE_SETUP
-#line 43 "gpp_interpreter.l"
+#line 44 "gpp_interpreter.l"
 {}
 	YY_BREAK
 case 28:
 YY_RULE_SETUP
-#line 45 "gpp_interpreter.l"
-{ printf("IDENTIFIER\n"); strcpy(yylval.name, yytext);  return IDENTIFIER;}
+#line 46 "gpp_interpreter.l"
+{  strcpy(yylval.name, yytext);  return IDENTIFIER;}
 	YY_BREAK
 case 29:
 /* rule 29 can match eol */
 YY_RULE_SETUP
-#line 47 "gpp_interpreter.l"
+#line 48 "gpp_interpreter.l"
 { /* ignore tab, whitespace and newline */ ;}
 	YY_BREAK
 case 30:
 YY_RULE_SETUP
-#line 49 "gpp_interpreter.l"
+#line 50 "gpp_interpreter.l"
 { printf("SYNTAX_ERROR an identifier should start with a letter.\n");}
 	YY_BREAK
 case 31:
 YY_RULE_SETUP
-#line 51 "gpp_interpreter.l"
+#line 52 "gpp_interpreter.l"
 { if((int)yytext[0] != 13) { /* don't print carriage return */
                             printf("SYNTAX_ERROR %s cannot be tokenized\n", yytext);
                           }
@@ -944,10 +945,10 @@ YY_RULE_SETUP
 	YY_BREAK
 case 32:
 YY_RULE_SETUP
-#line 56 "gpp_interpreter.l"
+#line 57 "gpp_interpreter.l"
 ECHO;
 	YY_BREAK
-#line 951 "lex.yy.c"
+#line 952 "lex.yy.c"
 case YY_STATE_EOF(INITIAL):
 	yyterminate();
 
@@ -1952,7 +1953,7 @@ void yyfree (void * ptr )
 
 #define YYTABLES_NAME "yytables"
 
-#line 56 "gpp_interpreter.l"
+#line 57 "gpp_interpreter.l"
 
 /* */
 int yywrap() {}

@@ -67,7 +67,7 @@ extern int yydebug;
 #if ! defined YYSTYPE && ! defined YYSTYPE_IS_DECLARED
 union YYSTYPE
 {
-#line 30 "gpp_interpreter.y"
+#line 43 "gpp_interpreter.y"
 
 char string [20]; // valuef
 char name [20]; // identifier

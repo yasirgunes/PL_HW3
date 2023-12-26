@@ -21,6 +21,19 @@ typedef struct variable {
  variable variables[100];
  int variable_count = 0;
 
+// function prototype
+typedef struct function {
+    char func_name[20];
+    char exp_type[20];
+} function;
+
+// 100 functions
+ function functions[100];
+ int function_count = 0;
+
+ int inFunction = 0; // flag to check if we are in a function => for scoping
+
+// symbol table functions
 void add_variable(char* var_name, char* var_value);
 char* get_variable_value(char* var_name);
 void set_variable_value(char* var_name, char* var_value);
@@ -67,37 +80,170 @@ START:
     ;   
 EXP: /* An expression always returns a fraction */
       OP_OP OP_PLUS EXP EXP OP_CP   {
-         char* result = add($3, $4);
-         strcpy($$, result);
-         printf("%s\n", $$); 
-         }                          
+        if(inFunction == 0) {
+            char exp3_value[20];
+            char exp4_value[20];
+            strcpy(exp3_value, $3);
+            strcpy(exp4_value, $4);
+
+            // if exp is an identifier like x. handle it.
+            for(int i = 0; i < variable_count; i++) {
+                if(strcmp(variables[i].var_name, $3) == 0) {
+                    strcpy(exp3_value, variables[i].var_value);
+                }
+            }
+            for(int i = 0; i < variable_count; i++) {
+                if(strcmp(variables[i].var_name, $4) == 0) {
+                    strcpy(exp4_value, variables[i].var_value);
+                }
+            }
+            char* result = add(exp3_value, exp4_value);
+            strcpy($$, result);
+            printf("%s\n", $$); 
+        }
+        else {
+            strcpy(functions[function_count].exp_type, "add");
+        }
+    }                          
     | OP_OP OP_MINUS EXP EXP OP_CP  {
-        char* result = subtract($3, $4);
-        strcpy($$, result);
-        printf("%s\n", $$); 
+        if(inFunction == 0) {
+            char exp3_value[20];
+            char exp4_value[20];
+            strcpy(exp3_value, $3);
+            strcpy(exp4_value, $4);
+
+            // if exp is an identifier like x. handle it.
+            for(int i = 0; i < variable_count; i++) {
+                if(strcmp(variables[i].var_name, $3) == 0) {
+                    strcpy(exp3_value, variables[i].var_value);
+                }
+            }
+            for(int i = 0; i < variable_count; i++) {
+                if(strcmp(variables[i].var_name, $4) == 0) {
+                    strcpy(exp4_value, variables[i].var_value);
+                }
+            }
+            char* result = subtract(exp3_value, exp4_value);
+            strcpy($$, result);
+            printf("%s\n", $$); 
+        }
+        else {
+            strcpy(functions[function_count].exp_type, "subtract");
+        }
     }
     | OP_OP OP_MULT EXP EXP OP_CP   {
-        char* result = multiply($3, $4);
-        strcpy($$, result);
-        printf("%s\n", $$); 
+        if(inFunction == 0) {
+            char exp3_value[20];
+            char exp4_value[20];
+            strcpy(exp3_value, $3);
+            strcpy(exp4_value, $4);
+
+            // if exp is an identifier like x. handle it.
+            for(int i = 0; i < variable_count; i++) {
+                if(strcmp(variables[i].var_name, $3) == 0) {
+                    strcpy(exp3_value, variables[i].var_value);
+                }
+            }
+            for(int i = 0; i < variable_count; i++) {
+                if(strcmp(variables[i].var_name, $4) == 0) {
+                    strcpy(exp4_value, variables[i].var_value);
+                }
+            }
+            char* result = multiply(exp3_value, exp4_value);
+            strcpy($$, result);
+            printf("%s\n", $$); 
+        }
+        else {
+            strcpy(functions[function_count].exp_type, "multiply");
+        }
     }
     | OP_OP OP_DIV EXP EXP OP_CP    {
-        char* result = divide($3, $4);
-        strcpy($$, result);
-        printf("%s\n", $$); 
+        if(inFunction == 0) {
+            char exp3_value[20];
+            char exp4_value[20];
+            strcpy(exp3_value, $3);
+            strcpy(exp4_value, $4);
+
+            // if exp is an identifier like x. handle it.
+            for(int i = 0; i < variable_count; i++) {
+                if(strcmp(variables[i].var_name, $3) == 0) {
+                    strcpy(exp3_value, variables[i].var_value);
+                }
+            }
+            for(int i = 0; i < variable_count; i++) {
+                if(strcmp(variables[i].var_name, $4) == 0) {
+                    strcpy(exp4_value, variables[i].var_value);
+                }
+            }
+            char* result = divide(exp3_value, exp4_value);
+            strcpy($$, result);
+            printf("%s\n", $$); 
+        }
+        else {
+            strcpy(functions[function_count].exp_type, "divide");
+        }
     }
     | OP_OP IDENTIFIER EXP          
     | OP_OP IDENTIFIER EXP EXP       
     | OP_OP IDENTIFIER EXP EXP EXP 
-    | IDENTIFIER {
-        // if the variable exists, return its value else add it to the symbol table
-        char* var_value = get_variable_value($1);
-        if (var_value != NULL) {
-            strcpy($$, var_value);
+    //function part
+    | OP_OP IDENTIFIER EXP EXP OP_CP {
+        char exp3_value[20];
+        char exp4_value[20];
+        strcpy(exp3_value, $3);
+        strcpy(exp4_value, $4);
+
+        // if exp is an identifier like x. handle it.
+        for(int i = 0; i < variable_count; i++) {
+            if(strcmp(variables[i].var_name, $3) == 0) {
+                strcpy(exp3_value, variables[i].var_value);
+            }
         }
-        else {
+        for(int i = 0; i < variable_count; i++) {
+            if(strcmp(variables[i].var_name, $4) == 0) {
+                strcpy(exp4_value, variables[i].var_value);
+            }
+        }
+
+        // calculate the result based on the function's exp_type
+        char exp_type[20];
+        for(int i = 0; i < function_count; i++) {
+            if(strcmp(functions[i].func_name, $2) == 0) {
+                strcpy(exp_type, functions[i].exp_type);
+            }
+        }
+        if(strcmp(exp_type, "add") == 0) {
+            char* result = add(exp3_value, exp4_value);
+            strcpy($$, result);
+            printf("%s\n", $$); 
+        }
+        else if(strcmp(exp_type, "subtract") == 0) {
+            char* result = subtract(exp3_value, exp4_value);
+            strcpy($$, result);
+            printf("%s\n", $$); 
+        }
+        else if(strcmp(exp_type, "multiply") == 0) {
+            char* result = multiply(exp3_value, exp4_value);
+            strcpy($$, result);
+            printf("%s\n", $$); 
+        }
+        else if(strcmp(exp_type, "divide") == 0) {
+            char* result = divide(exp3_value, exp4_value);
+            strcpy($$, result);
+            printf("%s\n", $$); 
+        }
+    }
+    | IDENTIFIER {
+        // if the variable exists do nothing else add it to the symbol table
+        int exists = 0; 
+        for(int i = 0; i < variable_count; i++) {
+            if(strcmp(variables[i].var_name, $1) == 0) {
+                exists = 1;
+                break;
+            }
+        }
+        if(exists == 0) {
             add_variable($1, "0b1");
-            strcpy($$, "0b1");
         }
     }                    
     | VALUEF  
@@ -118,6 +264,9 @@ FUNCTION:
     }
     | OP_OP KW_DEF IDENTIFIER IDENTIFIER IDENTIFIER EXP OP_CP 
     {
+        inFunction = 0;
+        strcpy(functions[function_count].func_name, $3);
+        function_count++;
         printf("Function %s defined\n", $3);
     }
     ;
@@ -255,7 +404,7 @@ char* get_variable_value(char* var_name) {
             return variables[i].var_value;
         }
     }
-    return NULL;
+    return "0b1";
 }
 
 void set_variable_value(char* var_name, char* var_value) {
