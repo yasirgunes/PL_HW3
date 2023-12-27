@@ -48,8 +48,14 @@
     ;; divide the numerator and denominator with gcd
     (setq numerator (/ numerator gcd))
     (setq lcm (/ lcm gcd))
-    ;; return the result
-    (format t "~db~d~%" numerator lcm)	
+    ;; combine numerator and denominator b at the middle.
+    (let
+        (
+            (result nil)
+        )
+        (setq result (concatenate 'string (write-to-string numerator) "b" (write-to-string lcm)))
+        (return-from add_valuef result)
+    )
 )
 
 (defun subtract_valuef (valuef1 valuef2)
@@ -77,8 +83,14 @@
     ;; divide the numerator and denominator with gcd
     (setq numerator (/ numerator gcd))
     (setq lcm (/ lcm gcd))
-    ;; return the result
-    (format t "~db~d~%" numerator lcm)
+    ;; combine numerator and denominator b at the middle.
+    (let
+        (
+            (result nil)
+        )
+        (setq result (concatenate 'string (write-to-string numerator) "b" (write-to-string lcm)))
+        (return-from subtract_valuef result)
+    )
 )
 
 (defun multiply_valuef (valuef1 valuef2)
@@ -102,8 +114,14 @@
     ;; divide the numerator and denominator with gcd
     (setq numerator (/ numerator gcd))
     (setq denominator (/ denominator gcd))
-    ;; return the result
-    (format t "~db~d~%" numerator denominator)
+    ;; combine numerator and denominator b at the middle.
+    (let
+        (
+            (result nil)
+        )
+        (setq result (concatenate 'string (write-to-string numerator) "b" (write-to-string denominator)))
+        (return-from multiply_valuef result)
+    )
 )
 
 (defun divide_valuef (valuef1 valuef2)
@@ -127,8 +145,14 @@
     ;; divide the numerator and denominator with gcd
     (setq numerator (/ numerator gcd))
     (setq denominator (/ denominator gcd))
-    ;; return the result
-    (format t "~db~d~%" numerator denominator)
+    ;; combine numerator and denominator b at the middle.
+    (let
+        (
+            (result nil)
+        )
+        (setq result (concatenate 'string (write-to-string numerator) "b" (write-to-string denominator)))
+        (return-from divide_valuef result)
+    )
 )
 
 ;; (defun parser (*tokens*)
@@ -198,6 +222,13 @@
 
 (defvar *lookahead* nil)
 
+(defvar result_index 2)
+
+(defun getNextToken ()
+    "Returns the next token from the *tokens* list."
+    (pop *tokens_as_symbols*)
+)
+
 (defun match (expectedToken)
     "Checks whether the expectedToken is equal to the *lookahead* token or not."
     (when (string= *lookahead* expectedToken)
@@ -207,53 +238,81 @@
     (return-from match nil)
 )
 
-(defun getNextToken ()
-    "Returns the next token from the *tokens* list."
-    (pop *tokens_as_symbols*)
-)
-
+(setq result nil)
 (defun EXPR ()
-    "Returns a boolean value depending on whether the tokens are syntatically correct or not."
+    "Returns a the value of the expression depending on whether the tokens are syntatically correct or not."
     (cond 
         ((string= *lookahead* "OP_OP")
             (match "OP_OP")
             (cond
                 ((string= *lookahead* "OP_PLUS")
                     (match "OP_PLUS")
-                    (EXPR)
-                    (EXPR)
+                    (let
+                        (
+                            (expr1_val nil)
+                            (expr2_val nil)
+                        )
+                        (setq expr1_val (EXPR))
+                        (incf result_index)
+                        (setq expr2_val (EXPR))
+                        (setq result (add_valuef expr1_val expr2_val))
+                    )
                 )
                 (
                     (string= *lookahead* "OP_MINUS")
                         (match "OP_MINUS")
-                        (EXPR)
-                        (EXPR)
+                        (let
+                            (
+                                (expr1_val nil)
+                                (expr2_val nil)
+                            )
+                            (setq expr1_val (EXPR))
+                            (incf result_index)
+                            (setq expr2_val (EXPR))
+                            (setq result (subtract_valuef expr1_val expr2_val))
+                        )
                 )
                 (
                     (string= *lookahead* "OP_MULT")
                         (match "OP_MULT")
-                        (EXPR)
-                        (EXPR)
+                        (let
+                            (
+                                (expr1_val nil)
+                                (expr2_val nil)
+                            )
+                            (setq expr1_val (EXPR))
+                            (incf result_index)
+                            (setq expr2_val (EXPR))
+                            (setq result (multiply_valuef expr1_val expr2_val))
+                        )
                 )
                 (
                     (string= *lookahead* "OP_DIV")
                         (match "OP_DIV")
-                        (EXPR)
-                        (EXPR)
+                        (let
+                            (
+                                (expr1_val nil)
+                                (expr2_val nil)
+                            )
+                            (setq expr1_val (EXPR))
+                            (incf result_index)
+                            (setq expr2_val (EXPR))
+                            (setq result (divide_valuef expr1_val expr2_val))
+                        )
                 )
-                
                 (
                     t
                     (return-from EXPR nil)
                 )
             )
             (match "OP_CP")
-            (return-from EXPR t)
+            (return-from EXPR result)
         )
         (
             (string= *lookahead* "VALUEF")
                 (match "VALUEF")
-                (return-from EXPR t)
+                ;; value of the valuef
+                (return-from EXPR (nth result_index *tokens*))
         )
         (
             (string= *lookahead* "IDENTIFIER")
@@ -265,10 +324,6 @@
             (return-from EXPR nil)
         )
     )
-
-
-
-
 
 )
 
@@ -301,6 +356,8 @@
                     (return)
                 )
                 (setf *tokens_as_symbols* nil)
+                (setf result nil)
+                (setf result_index 2)
                 (setq *tokens* (tokenize_input input))
                 (loop for token in *tokens* do
                     (setf result (dfa token))
@@ -310,15 +367,16 @@
                 )
                 ;; reverse the *tokens_as_symbols* list
                 (nreverse *tokens_as_symbols*)
-                (format t "~d~%" *tokens_as_symbols*)
+                ;; (format t "~d~%" *tokens_as_symbols*)
                 ;; (setf parser_result (parser *tokens*))
                 ;; (when (string= parser_result "exit")
                 ;;     (return)
                 ;; )
                 (setq *lookahead* (getNextToken))
-                (if (EXPR)
-                    (format t "Syntax is correct.~%")
+                (setq EXPR_result (EXPR))
+                (if (equal EXPR_result nil)
                     (format t "Syntax error.~%")
+                    (format t "~d~%" EXPR_result)
                 )
             )
         )
