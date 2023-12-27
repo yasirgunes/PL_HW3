@@ -123,6 +123,8 @@
 
 (defvar *state* "START")
 
+(defvar *tokens_as_symbols* nil)
+
 (defun dfa (token)
     (setq token_index 0)
     (loop
@@ -255,58 +257,112 @@
         ;; keyword found
         (when (string= *state* "KEYWORD_FOUND")
             (if (string= token "and")
-                (format t "KW_AND~%")
+                (progn
+                    (format t "KW_AND~%")
+                    (push "KW_AND" *tokens_as_symbols*)
+                )
             )
             (if (string= token "or")
-                (format t "KW_OR~%")
+                (progn 
+                    (format t "KW_OR~%")
+                    (push "KW_OR" *tokens_as_symbols*)
+                )
             )
             (if (string= token "not")
-                (format t "KW_NOT~%")
+                (progn 
+                    (format t "KW_NOT~%")
+                    (push "KW_NOT" *tokens_as_symbols*)
+                )
             )
             (if (string= token "equal")
-                (format t "KW_EQUAL~%")
+                (progn 
+                    (format t "KW_EQUAL~%")
+                    (push "KW_EQUAL" *tokens_as_symbols*)
+                )
             )
             (if (string= token "less")
-                (format t "KW_LESS~%")
+                (progn
+                    (format t "KW_LESS~%")
+                    (push "KW_LESS" *tokens_as_symbols*)
+                )
             )
             (if (string= token "nil")
-                (format t "KW_NIL~%")
+                (progn 
+                    (format t "KW_NIL~%")
+                    (push "KW_NIL" *tokens_as_symbols*)
+                )
             )
             (if (string= token "list")
-                (format t "KW_LIST~%")
+                (progn
+                    (format t "KW_LIST~%")
+                    (push "KW_LIST" *tokens_as_symbols*)
+                )
             )
             (if (string= token "append")
-                (format t "KW_APPEND~%")
+                (progn
+                    (format t "KW_APPEND~%")
+                    (push "KW_APPEND" *tokens_as_symbols*)
+                )
             )
             (if (string= token "concat")
-                (format t "KW_CONCAT~%")
+                (progn
+                    (format t "KW_CONCAT~%")
+                    (push "KW_CONCAT" *tokens_as_symbols*)
+                )
             )
             (if (string= token "set")
-                (format t "KW_SET~%")
+                (progn
+                    (format t "KW_SET~%")
+                    (push "KW_SET" *tokens_as_symbols*)
+                )
             )
             (if (string= token "def")
-                (format t "KW_DEF~%")
+                (progn
+                    (format t "KW_DEF~%")
+                    (push "KW_DEF" *tokens_as_symbols*)
+                )
             )
             (if (string= token "for")
-                (format t "KW_FOR~%")
+                (progn
+                    (format t "KW_FOR~%")
+                    (push "KW_FOR" *tokens_as_symbols*)
+                )
             )
             (if (string= token "if")
-                (format t "KW_IF~%")
+                (progn
+                    (format t "KW_IF~%")
+                    (push "KW_IF" *tokens_as_symbols*)
+                )
             )
             (if (string= token "exit")
-                (format t "KW_EXIT~%")
+                (progn
+                    (format t "KW_EXIT~%")
+                    (push "KW_EXIT" *tokens_as_symbols*)
+                )
             )
             (if (string= token "load")
-                (format t "KW_LOAD~%")
+                (progn
+                    (format t "KW_LOAD~%")
+                    (push "KW_LOAD" *tokens_as_symbols*)
+                )
             )
             (if (string= token "display")
-                (format t "KW_DISPLAY~%")
+                (progn
+                    (format t "KW_DISPLAY~%")
+                    (push "KW_DISPLAY" *tokens_as_symbols*)
+                )
             )
             (if (string= token "true")
+                (progn
                 (format t "KW_TRUE~%")
+                (push "KW_TRUE" *tokens_as_symbols*)
+                )
             )
             (if (string= token "false")
+                (progn
                 (format t "KW_FALSE~%")
+                (push "KW_FALSE" *tokens_as_symbols*)
+                )
             )
             (setf *state* "START")
             (return)
@@ -315,25 +371,46 @@
         ;; operator found
         (when (string= *state* "OPERATOR_FOUND")
             (if (string= token "+")
-                (format t "OP_PLUS~%")
+                (progn
+                    (format t "OP_PLUS~%")
+                    (push "OP_PLUS" *tokens_as_symbols*)
+                )
             )
             (if (string= token "-")
-                (format t "OP_MINUS~%")
+                (progn
+                    (format t "OP_MINUS~%")
+                    (push "OP_MINUS" *tokens_as_symbols*)
+                )
             )
             (if (string= token "*")
-                (format t "OP_MULT~%")
+                (progn 
+                    (format t "OP_MULT~%")
+                    (push "OP_MULT" *tokens_as_symbols*)
+                )
             )
             (if (string= token "/")
-                (format t "OP_DIV~%")
+                (progn
+                    (format t "OP_DIV~%")
+                    (push "OP_DIV" *tokens_as_symbols*)
+                )
             )
             (if (string= token "(")
-                (format t "OP_OP~%")
+                (progn
+                    (format t "OP_OP~%")
+                    (push "OP_OP" *tokens_as_symbols*)                
+                )
             )
             (if (string= token ")")
-                (format t "OP_CP~%")
+                (progn
+                    (format t "OP_CP~%")
+                    (push "OP_CP" *tokens_as_symbols*)
+                )
             )
             (if (string= token ",")
-                (format t "OP_COMMA~%")
+                (progn
+                    (format t "OP_COMMA~%")
+                    (push "OP_COMMA" *tokens_as_symbols*)
+                )
             )
             (setf *state* "START")
             (return)
@@ -342,6 +419,7 @@
         ;; identifier found
         (when (string= *state* "IDENTIFIER_FOUND")
             (format t "IDENTIFIER~%")
+            (push "IDENTIFIER" *tokens_as_symbols*)
             (setf *state* "START")
             (return)
         )
@@ -349,6 +427,7 @@
         ;; literal found
         (when (string= *state* "LITERAL_FOUND")
             (format t "VALUEF~%")
+            (push "VALUEF" *tokens_as_symbols*)
             (setf *state* "START")
             (return)
         )
@@ -372,46 +451,46 @@
 
 
 
-(format t "Type exit to quit.~%Enter the string to be parsed:~%")
 
-(defun gppinterpreter (&optional file)
-    (if file
-        ;; if there is a file name given as an argument then read from the file
-        (with-open-file (stream file)
-            (loop for line = (read-line stream nil)
-                while line do
-                (setq tokens (tokenize_input line))
-                (loop for token in tokens do
-                    (setf result (dfa token))
-                    (if (string= result "END_OF_LINE")
-                        (return)
-                    )
-                )
-            )
-        )
-        ;; if there is no file
-        (loop
-            (format t "> ")
-            (let
-                ( ;; local variable part
-                (input (read-line))
-                )
-                (when (string= input "exit")
-                    (return)
-                )
-                (setq tokens (tokenize_input input))
-                (loop for token in tokens do
-                    (setf result (dfa token))
-                    (if (string= result "END_OF_LINE")
-                        (return)
-                    )
-                )
-            )
-        )
-  )
-)
+;; (defun gppinterpreter (&optional file)
+;;     (format t "Type exit to quit.~%Enter the string to be parsed:~%")
+;;     (if file
+;;         ;; if there is a file name given as an argument then read from the file
+;;         (with-open-file (stream file)
+;;             (loop for line = (read-line stream nil)
+;;                 while line do
+;;                 (setq tokens (tokenize_input line))
+;;                 (loop for token in tokens do
+;;                     (setf result (dfa token))
+;;                     (if (string= result "END_OF_LINE")
+;;                         (return)
+;;                     )
+;;                 )
+;;             )
+;;         )
+;;         ;; if there is no file
+;;         (loop
+;;             (format t "> ")
+;;             (let
+;;                 ( ;; local variable part
+;;                 (input (read-line))
+;;                 )
+;;                 (when (string= input "exit")
+;;                     (return)
+;;                 )
+;;                 (setq tokens (tokenize_input input))
+;;                 (loop for token in tokens do
+;;                     (setf result (dfa token))
+;;                     (if (string= result "END_OF_LINE")
+;;                         (return)
+;;                     )
+;;                 )
+;;             )
+;;         )
+;;   )
+;; )
 
 
-(gppinterpreter)
+;; (gppinterpreter)
 
 

@@ -1,6 +1,6 @@
 LISP = clisp
 
-FILE = gpp_lexer
+FILE = gpp_interpreter
 
 INPUTFILE = input.txt
 OUTPUTFILE = output.txt
