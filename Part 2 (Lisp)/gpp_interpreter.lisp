@@ -23,6 +23,17 @@
 ;; IDENTIFIER
 ;; VALUEF
 
+(defclass function ()
+    (
+        (name :accessor name :initarg :name)
+        ;; (parameters :accessor parameters :initarg :parameters)
+        ;; (body :accessor body :initarg :body)
+    )
+
+)
+;; create a list of functions
+(defvar *functions* nil)
+
 
 (defun add_valuef (valuef1 valuef2)
     ;; valuef1 is like this: "2b1"
@@ -224,18 +235,32 @@
 
 (defvar result_index 2)
 
+(setq tokens_copy nil) ;; this is for getting the values of the tokens like 2b1, 4b1 etc.
+;; we pop it as we pop *tokens_as_symbols* list so that we can get the values of the correct tokens
+
 (defun getNextToken ()
     "Returns the next token from the *tokens* list."
+    (pop tokens_copy)
     (pop *tokens_as_symbols*)
 )
 
 (defun match (expectedToken)
     "Checks whether the expectedToken is equal to the *lookahead* token or not."
-    (when (string= *lookahead* expectedToken)
-        (setq *lookahead* (getNextToken))
-        (return-from match t)
+    ;; (when (string= *lookahead* expectedToken)
+    ;;     (setq *lookahead* (getNextToken))
+    ;;     (return-from match t)
+    ;; )
+    ;; (return-from match nil)
+    (let
+        (
+            (result nil)
+        )
+        (when (string= *lookahead* expectedToken)
+            (setq result (nth 0 tokens_copy))
+            (setq *lookahead* (getNextToken))
+            (return-from match result)
+        )
     )
-    (return-from match nil)
 )
 
 (setq result nil)
@@ -253,9 +278,13 @@
                             (expr2_val nil)
                         )
                         (setq expr1_val (EXPR))
-                        (incf result_index)
                         (setq expr2_val (EXPR))
-                        (setq result (add_valuef expr1_val expr2_val))
+                        
+                        ;; if expr1_val or expr2_val are not strings then it is a syntax error
+                        (if (and (stringp expr1_val) (stringp expr2_val))
+                            (setq result (add_valuef expr1_val expr2_val))
+                            (return-from EXPR nil)
+                        )
                     )
                 )
                 (
@@ -267,9 +296,13 @@
                                 (expr2_val nil)
                             )
                             (setq expr1_val (EXPR))
-                            (incf result_index)
                             (setq expr2_val (EXPR))
-                            (setq result (subtract_valuef expr1_val expr2_val))
+
+                            ;; if expr1_val or expr2_val are not strings then it is a syntax error
+                            (if (and (stringp expr1_val) (stringp expr2_val))
+                                (setq result (subtract_valuef expr1_val expr2_val))
+                                (return-from EXPR nil)
+                            )
                         )
                 )
                 (
@@ -281,9 +314,13 @@
                                 (expr2_val nil)
                             )
                             (setq expr1_val (EXPR))
-                            (incf result_index)
                             (setq expr2_val (EXPR))
-                            (setq result (multiply_valuef expr1_val expr2_val))
+                            
+                            ;; if expr1_val or expr2_val are not strings then it is a syntax error
+                            (if (and (stringp expr1_val) (stringp expr2_val))
+                                (setq result (multiply_valuef expr1_val expr2_val))
+                                (return-from EXPR nil)
+                            )
                         )
                 )
                 (
@@ -295,9 +332,12 @@
                                 (expr2_val nil)
                             )
                             (setq expr1_val (EXPR))
-                            (incf result_index)
                             (setq expr2_val (EXPR))
-                            (setq result (divide_valuef expr1_val expr2_val))
+                            ;; if expr1_val or expr2_val are not strings then it is a syntax error
+                            (if (and (stringp expr1_val) (stringp expr2_val))
+                                (setq result (divide_valuef expr1_val expr2_val))
+                                (return-from EXPR nil)
+                            )
                         )
                 )
                 (
@@ -305,14 +345,18 @@
                     (return-from EXPR nil)
                 )
             )
-            (match "OP_CP")
+            ;; if there is no OP_CP then it is a syntax error
+            (if (string= *lookahead* "OP_CP")
+                (match "OP_CP")
+                (return-from EXPR nil)
+            )
             (return-from EXPR result)
         )
         (
             (string= *lookahead* "VALUEF")
                 (match "VALUEF")
                 ;; value of the valuef
-                (return-from EXPR (nth result_index *tokens*))
+                ;; (return-from EXPR (nth result_index *tokens*))
         )
         (
             (string= *lookahead* "IDENTIFIER")
@@ -372,7 +416,11 @@
                 ;; (when (string= parser_result "exit")
                 ;;     (return)
                 ;; )
+
+                ;; copy the *tokens* list to tokens_copy
+                (setq tokens_copy (copy-list *tokens*))
                 (setq *lookahead* (getNextToken))
+                (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
                 (setq EXPR_result (EXPR))
                 (if (equal EXPR_result nil)
                     (format t "Syntax error.~%")
