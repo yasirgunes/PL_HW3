@@ -23,7 +23,7 @@
 ;; IDENTIFIER
 ;; VALUEF
 
-(defclass function ()
+(defclass defined_function ()
     (
         (name :accessor name :initarg :name)
         ;; (parameters :accessor parameters :initarg :parameters)
@@ -32,7 +32,7 @@
 
 )
 ;; create a list of functions
-(defvar *functions* nil)
+(defvar *defined_function* nil)
 
 
 (defun add_valuef (valuef1 valuef2)
@@ -166,71 +166,6 @@
     )
 )
 
-;; (defun parser (*tokens*)
-;;     (cond
-;;         (
-;;             ;; if the length of the *tokens_as_symbols* is 3
-;;             (equal (length *tokens_as_symbols*) 3)
-;;             ;; if the first element is OP_OP and the last element is OP_CP
-;;                 (when (and (string= (nth 0 *tokens_as_symbols*) "OP_OP")
-;;                     (string= (nth 2 *tokens_as_symbols*) "OP_CP"))
-
-;;                     ;; if the second element is KW_EXIT
-;;                     (when (string= (nth 1 *tokens_as_symbols*) "KW_EXIT")
-;;                         ;; exit from the program
-;;                         (return-from parser "exit")
-;;                     )
-;;                 )
-;;         )
-;;         ;; EXPRESSIONS
-;;         (
-;;             (equal (length *tokens_as_symbols*) 1)
-;;             (when (string= (nth 0 *tokens_as_symbols*) "VALUEF")
-;;                 (format t "~d~%" (nth 0 *tokens*))
-;;             )
-;;             (when (string= (nth 0 *tokens_as_symbols*) "IDENTIFIER")
-;;                 (format t "~d~%" (nth 0 *tokens*))
-;;             )
-;;         )
-;;         (
-;;             ;; if the length of the *tokens_as_symbols* is 5
-;;             (equal (length *tokens_as_symbols*) 5)
-;;             ;; if the first element is "OP_OP" and the last element is "OP_CP" and third and fourth element is "VALUEF"
-;;             (when (and (string= (nth 0 *tokens_as_symbols*) "OP_OP")
-;;                 (string= (nth 4 *tokens_as_symbols*) "OP_CP")
-;;                 (string= (nth 2 *tokens_as_symbols*) "VALUEF")
-;;                 (string= (nth 3 *tokens_as_symbols*) "VALUEF"))
-;;                 ;; if the second element is "OP_PLUS"
-;;                 (when (string= (nth 1 *tokens_as_symbols*) "OP_PLUS")
-;;                     ;; print the result
-;;                     (add_valuef (nth 2 *tokens*) (nth 3 *tokens*))
-;;                 )
-;;                 ;; if the second element is "OP_MINUS"
-;;                 (when (string= (nth 1 *tokens_as_symbols*) "OP_MINUS")
-;;                     ;; print the result
-;;                     (subtract_valuef (nth 2 *tokens*) (nth 3 *tokens*))
-;;                 )
-;;                 ;; if the second element is "OP_MULT"
-;;                 (when (string= (nth 1 *tokens_as_symbols*) "OP_MULT")
-;;                     ;; print the result
-;;                     (multiply_valuef (nth 2 *tokens*) (nth 3 *tokens*))
-;;                 )
-;;                 ;; if the second element is "OP_DIV"
-;;                 (when (string= (nth 1 *tokens_as_symbols*) "OP_DIV")
-;;                     ;; print the result
-;;                     (divide_valuef (nth 2 *tokens*) (nth 3 *tokens*))
-;;                 )
-;;             )
-;;         )
-;;         (
-;;             t
-;;             (format t "Syntax error.~%")
-;;             (return-from parser "syntax error")
-;;         )
-;;     )
-
-;; )
-
 (defvar *lookahead* nil)
 
 (defvar result_index 2)
@@ -262,6 +197,177 @@
         )
     )
 )
+
+(defun isExpressionStart ()
+    "Checks whether the *lookahead* token is an expression start or not."
+    (cond
+        (
+            (string= *lookahead* "OP_OP")
+                (match "OP_OP")
+                (cond
+                    (
+                        (string= *lookahead* "OP_PLUS")
+                            (match "OP_PLUS")
+
+                            ;; fresh start for the next expression
+                            (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
+                            (setq tokens_copy (copy-list *tokens*))
+                            (setq *lookahead* (getNextToken))
+
+                            (return-from isExpressionStart t)
+                    )
+                    (
+                        (string= *lookahead* "OP_MINUS")
+                            (match "OP_MINUS")
+
+                            ;; fresh start for the next expression
+                            (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
+                            (setq tokens_copy (copy-list *tokens*))
+                            (setq *lookahead* (getNextToken))
+
+                            (return-from isExpressionStart t)
+                    )
+                    (
+                        (string= *lookahead* "OP_MULT")
+                            (match "OP_MULT")
+
+                            ;; fresh start for the next expression
+                            (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
+                            (setq tokens_copy (copy-list *tokens*))
+                            (setq *lookahead* (getNextToken))
+
+                            (return-from isExpressionStart t)
+                    )
+                    (
+                        (string= *lookahead* "OP_DIV")
+                            (match "OP_DIV")
+
+                            ;; fresh start for the next expression
+                            (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
+                            (setq tokens_copy (copy-list *tokens*))
+                            (setq *lookahead* (getNextToken))
+
+                            (return-from isExpressionStart t)
+                    )
+                    (
+                        (string= *lookahead* "IDENTIFIER")
+                            (match "IDENTIFIER")
+
+                            ;; fresh start for the next expression
+                            (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
+                            (setq tokens_copy (copy-list *tokens*))
+                            (setq *lookahead* (getNextToken))
+
+                            (return-from isExpressionStart t)
+                    )
+                    (
+                        t
+                        (return-from isExpressionStart nil)
+                    )
+                )
+                
+            
+        )
+        (
+            (string= *lookahead* "VALUEF")
+                (match "VALUEF")
+
+                ;; fresh start for the next expression
+                (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
+                (setq tokens_copy (copy-list *tokens*))
+                (setq *lookahead* (getNextToken))
+
+                (return-from isExpressionStart t)
+        )
+        (
+            (string= *lookahead* "IDENTIFIER")
+                (match "IDENTIFIER")
+
+                ;; fresh start for the next expression
+                (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
+                (setq tokens_copy (copy-list *tokens*))
+                (setq *lookahead* (getNextToken))
+
+                (return-from isExpressionStart t)
+        )
+        (
+            t
+            (return-from isExpressionStart nil)
+        )
+    )
+)
+
+(defun isFunctionStart ()
+    "Checks whether the *lookahead* token is a function start or not."
+    (cond
+        (
+            (string= *lookahead* "OP_OP")
+                (match "OP_OP")
+                (cond
+                    (
+                        (string= *lookahead* "IDENTIFIER")
+                            (match "IDENTIFIER")
+
+                            ;; fresh start for the next expression
+                            (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
+                            (setq tokens_copy (copy-list *tokens*))
+                            (setq *lookahead* (getNextToken))
+
+                            (return-from isFunctionStart t)
+                    )
+                    (
+                        t
+                        (return-from isFunctionStart nil)
+                    )
+                )
+        )
+        (
+            t
+            (return-from isFunctionStart nil)
+        )
+    )
+)
+
+(defun START ()
+    (cond
+        (
+            (isExpressionStart)
+            (return-from START (EXPR))
+        )
+        (
+            (isFunctionStart)
+            (return-from START (FUNCTION))
+        )
+        (
+            (string= *lookahead* "OP_OP")
+            (match "OP_OP")
+            (if (string= *lookahead* "KW_EXIT")
+                (progn
+                    (match "KW_EXIT")
+                    (if (string= *lookahead* "OP_CP")
+                        (progn
+                            (match "OP_CP")
+                            (return-from START "exit")
+                        )
+                    )
+                )
+                (return-from START nil) ;; if there is no KW_EXIT then it is a syntax error
+            )
+        )
+        ;; if there is no OP_OP then it is a syntax error
+        (
+            t
+            (return-from START nil)
+        )
+    )
+    
+)
+
+
+
+
+
+
 
 (setq result nil)
 (defun EXPR ()
@@ -411,11 +517,9 @@
                 )
                 ;; reverse the *tokens_as_symbols* list
                 (nreverse *tokens_as_symbols*)
-                ;; (format t "~d~%" *tokens_as_symbols*)
-                ;; (setf parser_result (parser *tokens*))
-                ;; (when (string= parser_result "exit")
-                ;;     (return)
-                ;; )
+
+                ;; copy the *tokens_as_symbols* list to *copy_tokens_as_symbols*
+                (defvar copy_tokens_as_symbols (copy-list *tokens_as_symbols*))
 
                 ;; copy the *tokens* list to tokens_copy
                 (setq tokens_copy (copy-list *tokens*))
