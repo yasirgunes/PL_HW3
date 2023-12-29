@@ -34,7 +34,14 @@
 ;; create a list of functions
 (defvar *defined_functions* (list ))
 
-
+(defclass defined_variable ()
+    (
+        (name :accessor name :initarg :name)
+        (value :accessor value :initarg :value)
+    )
+)
+;; create a list of variables
+(defvar *defined_variables* (list ))
 
 (defun add_valuef (valuef1 valuef2)
     ;; valuef1 is like this: "2b1"
@@ -169,7 +176,6 @@
 
 (defvar *lookahead* nil)
 
-(defvar result_index 2)
 
 
 (setq tokens_copy nil) ;; this is for getting the values of the tokens like 2b1, 4b1 etc.
@@ -191,9 +197,29 @@
     (let
         (
             (result nil)
+            (found nil)
         )
         (when (string= *lookahead* expectedToken)
             (setq result (nth 0 tokens_copy))
+            (when (string= expectedToken "IDENTIFIER")
+                ;; search for if there is an identifier defined before like this.
+                (loop for variable in *defined_variables* do
+                    (if (string= (name variable) result)
+                        (progn
+                            (setq found t)
+                            (setq result (value variable))
+                        )
+                    )
+                )
+                ;; define new variable with value 0b1
+                (if (not found)
+                    (progn
+                        (setq new_variable (make-instance 'defined_variable :name result :value "0b1"))
+                        (setq *defined_variables* (append *defined_variables* (list new_variable)))
+                        (setq result (value new_variable))
+                    )
+                )
+            )
             (setq *lookahead* (getNextToken))
             (return-from match result)
         )
@@ -421,7 +447,7 @@
 
 
 
-(setq function_body (list))
+(setq function_body (list ))
 (setq result nil)
 (defun EXPR ()
     (when *inFunction*
@@ -553,6 +579,7 @@
     )
 
     "Returns a the value of the expression depending on whether the tokens are syntatically correct or not."
+    (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
     (cond 
         ((string= *lookahead* "OP_OP")
             (match "OP_OP")
@@ -691,17 +718,17 @@
                                                     (setq parameters (append parameters (list (match "IDENTIFIER"))))
                                                 )
                                             )
-                                            ;; if there are no parameters
-                                            (progn
-                                                ;; (setq body function_body)
-                                                (EXPR)
-                                                (nreverse function_body)
-                                                (format t "function_body: ~a~%" function_body)
-                                            )
                                         )
                                     )
                                     (return-from FUNCT nil) ;; if there is no IDENTIFIER then it is a syntax error
                                 )
+                                ;; save expression to function_body
+                                (progn
+                                    (EXPR)
+                                    (nreverse function_body)
+                                    (format t "function_body: ~a~%" function_body)
+                                )
+
                                 (let
                                     (
                                         (new_function (make-instance 'defined_function :name function_name :parameters parameters :body function_body))
@@ -713,6 +740,11 @@
                                     (format t "new_function body: ~a~%" (body new_function))
                                 )
                                 ;; (return-from FUNCT t)
+
+                                ;; refresh the necessary variables
+                                (setq *inFunction* nil)
+                                (setq function_body (list ))
+                                
                                 (return-from FUNCT "Function defined.")
                             )
                     )
