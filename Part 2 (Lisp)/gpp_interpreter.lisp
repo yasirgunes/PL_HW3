@@ -452,17 +452,17 @@
         (cond 
             ((string= *lookahead* "OP_OP")
                 (match "OP_OP")
-                (push "(" function_body)
+                ;; (push "(" function_body)
                 (cond
                     ((string= *lookahead* "OP_PLUS")
                         (match "OP_PLUS")
                         (format t "tokens_copy: ~a~%" tokens_copy)
-                        (push "+" function_body)
-                        (push (nth 0 tokens_copy) function_body)
-                        (push (nth 1 tokens_copy) function_body)
-                        (setq function_parameters (append function_parameters (list (nth 0 tokens_copy))))
-                        (setq function_parameters (append function_parameters (list (nth 1 tokens_copy))))
-                        (format t "function_parameters test: ~a~%" function_parameters)
+                        ;; (push "+" function_body)
+                        ;; (push (nth 0 tokens_copy) function_body)
+                        ;; (push (nth 1 tokens_copy) function_body)
+                        ;; (setq function_parameters (append function_parameters (list (nth 0 tokens_copy))))
+                        ;; (setq function_parameters (append function_parameters (list (nth 1 tokens_copy))))
+                        ;; (format t "function_parameters test: ~a~%" function_parameters)
                         (let
                             (
                                 (expr1_val nil)
@@ -486,7 +486,7 @@
                     (
                         (string= *lookahead* "OP_MINUS")
                             (match "OP_MINUS")
-                            (push "-" function_body)
+                            ;; (push "-" function_body)
                             (let
                                 (
                                     (expr1_val nil)
@@ -505,7 +505,7 @@
                     (
                         (string= *lookahead* "OP_MULT")
                             (match "OP_MULT")
-                            (push "*" function_body)
+                            ;; (push "*" function_body)
                             (let
                                 (
                                     (expr1_val nil)
@@ -524,7 +524,7 @@
                     (
                         (string= *lookahead* "OP_DIV")
                             (match "OP_DIV")
-                            (push "/" function_body)
+                            ;; (push "/" function_body)
                             (let
                                 (
                                     (expr1_val nil)
@@ -582,7 +582,7 @@
                 ;; if there is no OP_CP then it is a syntax error
                 (if (string= *lookahead* "OP_CP")
                     (progn
-                        (push ")" function_body)
+                        ;; (push ")" function_body)
                         (match "OP_CP")
                     )
                     (return-from EXPR nil)
@@ -596,7 +596,7 @@
                             (result nil)
                         )
                         (setq result (match "VALUEF"))
-                        (push result function_body)
+                        ;; (push result function_body)
                         (return-from EXPR result)
                     )
                     ;; value of the valuef
@@ -612,7 +612,7 @@
                             (result nil)
                         )
                         (setq result (match "IDENTIFIER"))
-                        (push result function_body)
+                        ;; (push result function_body)
                         (return-from EXPR result)
                     )
             )        
@@ -839,30 +839,38 @@
                                 (
                                     (function_name nil)
                                 )
+                                (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
+                                (format t "tokens_copy: ~a~%" tokens_copy)
                                 (if (string= *lookahead* "IDENTIFIER")
                                     (progn
                                         (setq function_name (nth 0 tokens_copy))
                                         (match "IDENTIFIER")
+
                                         (if (string= *lookahead* "IDENTIFIER")
                                             ;; if there are parameters
                                             (progn
+                                                (setq function_parameters (append function_parameters (list (nth 0 tokens_copy))))
                                                 (match "IDENTIFIER")
                                                 ;; check for another parameter
                                                 (if (string= *lookahead* "IDENTIFIER")
-                                                    (match "IDENTIFIER")
+                                                    (progn
+                                                        (setq function_parameters (append function_parameters (list (nth 0 tokens_copy))))
+                                                        (match "IDENTIFIER")
+                                                        (format t "tokens_as_symbolss: ~a~%" *tokens_as_symbols*)
+                                                        (format t "tokens_copyy: ~a~%" tokens_copy)
+                                                        ;; set function_body to from tokens_copy's 0th index to end - 1
+                                                        (loop for i from 0 to (- (length tokens_copy) 2) do
+                                                            (setq function_body (append function_body (list (nth i tokens_copy))))
+                                                        )
+                                                        (format t "function_body: ~a~%" function_body)
+                                                    )
                                                 )
                                             )
                                         )
                                     )
                                     (return-from FUNCT nil) ;; if there is no IDENTIFIER then it is a syntax error
                                 )
-                                ;; save expression to function_body
-                                (progn
-                                    (EXPR)
-                                    (nreverse function_body)
-                                    (format t "function_body: ~a~%" function_body)
-                                )
-
+                                (EXPR) ;; evaluate the function body
                                 (let
                                     (
                                         (new_function (make-instance 'defined_function :name function_name :parameters function_parameters :body function_body))
