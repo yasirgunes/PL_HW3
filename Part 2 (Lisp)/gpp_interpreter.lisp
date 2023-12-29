@@ -624,8 +624,6 @@
     )
 
     "Returns a the value of the expression depending on whether the tokens are syntatically correct or not."
-    (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
-    (format t "tokens_copy: ~a~%" tokens_copy)
     (cond 
         ((string= *lookahead* "OP_OP")
             (match "OP_OP")
@@ -742,14 +740,31 @@
                                             (setq entered_parameters (append entered_parameters (list (nth i tokens_copy))))
                                         )
 
-
+                                        (format t "lookahead: ~a~%" *lookahead*)
+                                        (format t "inFunction: ~a~%" *inFunction*)
                                         (loop for i from 0 to parameter_len do
-                                            (pop tokens_copy)
+                                            (setq symbol_backup (nth 0 *tokens_as_symbols*))
+                                            (format t "sonuc: ~d~%"(EXPR))
+                                            (when (= i parameter_len)
+                                                (push symbol_backup *tokens_as_symbols*)
+                                            )
                                         )
+                                        (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
+                                        (format t "tokens_copy: ~a~%" tokens_copy)
 
-                                        (loop for i from 0 to (- parameter_len 1) do
-                                            (pop *tokens_as_symbols*)
-                                        )
+
+                                        ;; (setq tokens_copy (copy-list backup_tokens_copy))
+                                        ;; (setq *tokens_as_symbols* (copy-list backup_tokens_as_symbols))
+
+
+                                        ;; (loop for i from 0 to parameter_len do
+                                        ;;     (pop tokens_copy)
+                                        ;; )
+
+                                        ;; (loop for i from 0 to (- parameter_len 1) do
+                                        ;;     (pop *tokens_as_symbols*)
+                                        ;; )
+
 
                                         (format t "entered_parameters: ~a~%" entered_parameters)
                                         (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
