@@ -43,6 +43,15 @@
 ;; create a list of variables
 (defvar *defined_variables* (list ))
 
+;; set variable value
+(defun set_variable_value (variable_name value)
+    (loop for variable in *defined_variables* do
+        (if (string= (name variable) variable_name)
+            (setf (value variable) value)
+        )
+    )
+)
+
 (defun add_valuef (valuef1 valuef2)
     ;; valuef1 is like this: "2b1"
     ;; valuef2 is like this: "4b1"
@@ -286,18 +295,6 @@
                             (return-from isExpressionStart t)
                     )
                     (
-                        (string= *lookahead* "VALUEF")
-                            (match "VALUEF")
-
-                            ;; fresh start for the next expression
-                            (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
-                            (setq tokens_copy (copy-list *tokens*))
-                            (setq *lookahead* (getNextToken))
-                            (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
-
-                            (return-from isExpressionStart t)
-                    )
-                    (
                         (string= *lookahead* "IDENTIFIER")
                             (match "IDENTIFIER")
 
@@ -448,6 +445,7 @@
 
 
 (setq function_body (list ))
+(setq function_parameters (list ))
 (setq result nil)
 (defun EXPR ()
     (when *inFunction*
@@ -458,15 +456,26 @@
                 (cond
                     ((string= *lookahead* "OP_PLUS")
                         (match "OP_PLUS")
+                        (format t "tokens_copy: ~a~%" tokens_copy)
                         (push "+" function_body)
+                        (push (nth 0 tokens_copy) function_body)
+                        (push (nth 1 tokens_copy) function_body)
+                        (setq function_parameters (append function_parameters (list (nth 0 tokens_copy))))
+                        (setq function_parameters (append function_parameters (list (nth 1 tokens_copy))))
+                        (format t "function_parameters test: ~a~%" function_parameters)
                         (let
                             (
                                 (expr1_val nil)
                                 (expr2_val nil)
                             )
+                            ;; don't want to add to function_body and function_parameters randomly.
+                            ;; main purpose is to obtain parameters and body of the function.
+                            
+                            ;; (setq *inFunction* nil)
                             (setq expr1_val (EXPR))
                             (setq expr2_val (EXPR))
-                            
+                            ;; (setq *inFunction* t)
+
                             ;; if expr1_val or expr2_val are not strings then it is a syntax error
                             (if (and (stringp expr1_val) (stringp expr2_val))
                                 (setq result (add_valuef expr1_val expr2_val))
@@ -530,6 +539,41 @@
                                 )
                             )
                     )
+                    ;; to evaluate functions
+                    (
+                        (string= *lookahead* "IDENTIFIER")
+                            (match "IDENTIFIER")
+                            (let
+                                (
+                                    (function_name nil)
+                                    (parameters nil)
+                                    (body nil)
+                                    (isDefined nil)
+                                )
+                                ;; search for the function
+                                (loop for function in *defined_functions* do
+                                    (if (string= (name function) (nth 0 tokens_copy))
+                                        (progn
+                                            (setq isDefined t)
+                                            (setq function_name (name function))
+                                            (setq parameters (parameters function))
+                                            (setq body (body function))
+                                        )
+                                    )
+                                )
+                                (if isDefined
+                                    (progn
+                                        (format t "function_name: ~a~%" function_name)
+                                        (format t "parameters: ~a~%" parameters)
+                                        (format t "body: ~a~%" body)
+
+                                        
+                                    
+                                    )
+                                    (return-from EXPR "Function not defined.")
+                                )                            
+                            )
+                    )
                     (
                         t
                         (return-from EXPR nil)
@@ -558,6 +602,7 @@
                     ;; value of the valuef
                     ;; (return-from EXPR (nth result_index *tokens*))
             )
+            
             (
                 (string= *lookahead* "IDENTIFIER")
                     ;; (match "IDENTIFIER")
@@ -580,6 +625,7 @@
 
     "Returns a the value of the expression depending on whether the tokens are syntatically correct or not."
     (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
+    (format t "tokens_copy: ~a~%" tokens_copy)
     (cond 
         ((string= *lookahead* "OP_OP")
             (match "OP_OP")
@@ -654,6 +700,94 @@
                             )
                         )
                 )
+                ;; to evaluate functions
+                (
+                    (string= *lookahead* "IDENTIFIER")
+                        ;; (match "IDENTIFIER")
+                        (let
+                            (
+                                (function_name nil)
+                                (parameters nil)
+                                (body nil)
+                                (isDefined nil)
+                            )
+                            (format t "tokens_copy: ~a~%" tokens_copy)
+                            ;; search for the function
+                            (loop for function in *defined_functions* do
+                                (if (string= (name function) (nth 0 tokens_copy))
+                                    (progn
+                                        (match "IDENTIFIER")
+                                        (setq isDefined t)
+                                        (setq function_name (name function))
+                                        (setq parameters (parameters function))
+                                        (setq body (body function))
+                                    )
+                                )
+                            )
+                            (if isDefined
+                                (progn
+                                    (format t "function_name: ~a~%" function_name)
+                                    (format t "parameters: ~a~%" parameters)
+                                    (format t "body: ~a~%" body)
+                                    (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
+                                    (format t "tokens_copy: ~a~%" tokens_copy)
+                                    (let
+                                        (
+                                            (parameter_len nil)
+                                            (entered_parameters (list ))
+                                            ;; (function_body_as_symbols (list ))
+                                        )
+                                        (setq parameter_len (- (length parameters) 1))
+                                        (loop for i from 0 to parameter_len do
+                                            (setq entered_parameters (append entered_parameters (list (nth i tokens_copy))))
+                                        )
+
+
+                                        (loop for i from 0 to parameter_len do
+                                            (pop tokens_copy)
+                                        )
+
+                                        (loop for i from 0 to (- parameter_len 1) do
+                                            (pop *tokens_as_symbols*)
+                                        )
+
+                                        (format t "entered_parameters: ~a~%" entered_parameters)
+                                        (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
+                                        (format t "tokens_copy: ~a~%" tokens_copy)
+
+                                        (format t "parameters: ~a~%" parameters)
+                                        (format t "entered_parameters: ~a~%" entered_parameters)
+
+                                        ;; update the values of the parameters
+                                        (loop for i from 0 to parameter_len do
+                                            (set_variable_value (nth i parameters) (nth i entered_parameters))
+                                        )
+
+                                        ;; add the function body from starting at the end of it to beginning to tokens_copy list
+                                        (loop for i from (- (length body) 1) downto 0 do
+                                            (push (nth i body) tokens_copy)
+                                        )
+                                        (setq backup_tokens_copy (copy-list tokens_copy))
+
+                                        ;; convert the function_body to lexeme tokens
+                                        (loop for i from (- (length body) 1) downto 0 do
+                                            (dfa (nth i body))
+                                        )
+                                        
+                                        (format t "tokens copy: ~a~%" tokens_copy)
+                                        (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
+                                        (setq *lookahead* (getNextToken))
+                                        (setq tokens_copy (copy-list backup_tokens_copy)) ;; copying again because it should follow 1 index behind
+                                        (setq result (EXPR))
+                                        (format t "tokens copy: ~a~%" tokens_copy)
+                                        (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
+                                    )
+                                
+                                )
+                                (return-from EXPR "Function not defined.")
+                            )                            
+                        )
+                )
                 (
                     t
                     (return-from EXPR nil)
@@ -704,18 +838,18 @@
                             (let
                                 (
                                     (function_name nil)
-                                    (parameters nil)
                                 )
                                 (if (string= *lookahead* "IDENTIFIER")
                                     (progn
-                                        (setq function_name (match "IDENTIFIER"))
+                                        (setq function_name (nth 0 tokens_copy))
+                                        (match "IDENTIFIER")
                                         (if (string= *lookahead* "IDENTIFIER")
                                             ;; if there are parameters
                                             (progn
-                                                (setq parameters (append parameters (list (match "IDENTIFIER"))))
+                                                (match "IDENTIFIER")
                                                 ;; check for another parameter
                                                 (if (string= *lookahead* "IDENTIFIER")
-                                                    (setq parameters (append parameters (list (match "IDENTIFIER"))))
+                                                    (match "IDENTIFIER")
                                                 )
                                             )
                                         )
@@ -731,7 +865,7 @@
 
                                 (let
                                     (
-                                        (new_function (make-instance 'defined_function :name function_name :parameters parameters :body function_body))
+                                        (new_function (make-instance 'defined_function :name function_name :parameters function_parameters :body function_body))
                                     )
                                     (setq *defined_functions* (append *defined_functions* (list new_function)))
                                     ;; print all the defined functions
@@ -739,12 +873,17 @@
                                     (format t "new_function parameters: ~a~%" (parameters new_function))
                                     (format t "new_function body: ~a~%" (body new_function))
                                 )
-                                ;; (return-from FUNCT t)
+
+                                (if (string= *lookahead* "OP_CP")
+                                    (match "OP_CP")
+                                    (return-from FUNCT nil) ;; if there is no OP_CP then it is a syntax error
+                                )
 
                                 ;; refresh the necessary variables
                                 (setq *inFunction* nil)
                                 (setq function_body (list ))
-                                
+                                (setq function_parameters (list ))
+
                                 (return-from FUNCT "Function defined.")
                             )
                     )
