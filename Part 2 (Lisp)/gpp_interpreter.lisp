@@ -170,6 +170,7 @@
 
 (defvar result_index 2)
 
+
 (setq tokens_copy nil) ;; this is for getting the values of the tokens like 2b1, 4b1 etc.
 ;; we pop it as we pop *tokens_as_symbols* list so that we can get the values of the correct tokens
 
@@ -213,7 +214,7 @@
                             (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
                             (setq tokens_copy (copy-list *tokens*))
                             (setq *lookahead* (getNextToken))
-
+                            (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
                             (return-from isExpressionStart t)
                     )
                     (
@@ -224,6 +225,7 @@
                             (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
                             (setq tokens_copy (copy-list *tokens*))
                             (setq *lookahead* (getNextToken))
+                            (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
 
                             (return-from isExpressionStart t)
                     )
@@ -235,6 +237,8 @@
                             (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
                             (setq tokens_copy (copy-list *tokens*))
                             (setq *lookahead* (getNextToken))
+                            (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
+                            
 
                             (return-from isExpressionStart t)
                     )
@@ -246,6 +250,20 @@
                             (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
                             (setq tokens_copy (copy-list *tokens*))
                             (setq *lookahead* (getNextToken))
+                            (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
+
+
+                            (return-from isExpressionStart t)
+                    )
+                    (
+                        (string= *lookahead* "VALUEF")
+                            (match "VALUEF")
+
+                            ;; fresh start for the next expression
+                            (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
+                            (setq tokens_copy (copy-list *tokens*))
+                            (setq *lookahead* (getNextToken))
+                            (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
 
                             (return-from isExpressionStart t)
                     )
@@ -257,11 +275,19 @@
                             (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
                             (setq tokens_copy (copy-list *tokens*))
                             (setq *lookahead* (getNextToken))
+                            (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
+
 
                             (return-from isExpressionStart t)
                     )
                     (
                         t
+
+                        (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
+                        (setq tokens_copy (copy-list *tokens*))
+                        (setq *lookahead* (getNextToken))
+                        (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
+                        
                         (return-from isExpressionStart nil)
                     )
                 )
@@ -276,6 +302,8 @@
                 (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
                 (setq tokens_copy (copy-list *tokens*))
                 (setq *lookahead* (getNextToken))
+                (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
+
 
                 (return-from isExpressionStart t)
         )
@@ -287,11 +315,19 @@
                 (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
                 (setq tokens_copy (copy-list *tokens*))
                 (setq *lookahead* (getNextToken))
+                (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
+
 
                 (return-from isExpressionStart t)
         )
         (
             t
+            
+            (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
+            (setq tokens_copy (copy-list *tokens*))
+            (setq *lookahead* (getNextToken))
+            (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
+
             (return-from isExpressionStart nil)
         )
     )
@@ -312,17 +348,30 @@
                             (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
                             (setq tokens_copy (copy-list *tokens*))
                             (setq *lookahead* (getNextToken))
+                            (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
 
                             (return-from isFunctionStart t)
                     )
                     (
                         t
+            
+                        (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
+                        (setq tokens_copy (copy-list *tokens*))
+                        (setq *lookahead* (getNextToken))
+                        (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
+
                         (return-from isFunctionStart nil)
                     )
                 )
         )
         (
             t
+
+            (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
+            (setq tokens_copy (copy-list *tokens*))
+            (setq *lookahead* (getNextToken))
+            (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
+
             (return-from isFunctionStart nil)
         )
     )
@@ -506,8 +555,6 @@
                     (return)
                 )
                 (setf *tokens_as_symbols* nil)
-                (setf result nil)
-                (setf result_index 2)
                 (setq *tokens* (tokenize_input input))
                 (loop for token in *tokens* do
                     (setf result (dfa token))
@@ -519,16 +566,28 @@
                 (nreverse *tokens_as_symbols*)
 
                 ;; copy the *tokens_as_symbols* list to *copy_tokens_as_symbols*
-                (defvar copy_tokens_as_symbols (copy-list *tokens_as_symbols*))
+                (setq copy_tokens_as_symbols (copy-list *tokens_as_symbols*))
 
                 ;; copy the *tokens* list to tokens_copy
                 (setq tokens_copy (copy-list *tokens*))
                 (setq *lookahead* (getNextToken))
                 (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
-                (setq EXPR_result (EXPR))
-                (if (equal EXPR_result nil)
-                    (format t "Syntax error.~%")
-                    (format t "~d~%" EXPR_result)
+                (setq START_result (START))
+
+                ;; if else if else statements.
+                (cond
+                    ( ;; if the result is "exit" then exit the program
+                        (string= START_result "exit")
+                            (return)
+                    )
+                    ( ;; else if the result is nil then there is a syntax error
+                        (string= START_result nil)
+                            (format t "Syntax error.~%")
+                    )
+                    ( ;; else print the result
+                        t
+                            (format t "~a~%" START_result)
+                    )
                 )
             )
         )
