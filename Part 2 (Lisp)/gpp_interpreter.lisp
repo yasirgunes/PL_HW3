@@ -32,7 +32,8 @@
 
 )
 ;; create a list of functions
-(defvar *defined_functions* nil)
+(defvar *defined_functions* (list ))
+
 
 
 (defun add_valuef (valuef1 valuef2)
@@ -420,9 +421,137 @@
 
 
 
-
+(setq function_body (list))
 (setq result nil)
 (defun EXPR ()
+    (when *inFunction*
+        (cond 
+            ((string= *lookahead* "OP_OP")
+                (match "OP_OP")
+                (push "(" function_body)
+                (cond
+                    ((string= *lookahead* "OP_PLUS")
+                        (match "OP_PLUS")
+                        (push "+" function_body)
+                        (let
+                            (
+                                (expr1_val nil)
+                                (expr2_val nil)
+                            )
+                            (setq expr1_val (EXPR))
+                            (setq expr2_val (EXPR))
+                            
+                            ;; if expr1_val or expr2_val are not strings then it is a syntax error
+                            (if (and (stringp expr1_val) (stringp expr2_val))
+                                (setq result (add_valuef expr1_val expr2_val))
+                                (return-from EXPR nil)
+                            )
+                        )
+                    )
+                    (
+                        (string= *lookahead* "OP_MINUS")
+                            (match "OP_MINUS")
+                            (push "-" function_body)
+                            (let
+                                (
+                                    (expr1_val nil)
+                                    (expr2_val nil)
+                                )
+                                (setq expr1_val (EXPR))
+                                (setq expr2_val (EXPR))
+
+                                ;; if expr1_val or expr2_val are not strings then it is a syntax error
+                                (if (and (stringp expr1_val) (stringp expr2_val))
+                                    (setq result (subtract_valuef expr1_val expr2_val))
+                                    (return-from EXPR nil)
+                                )
+                            )
+                    )
+                    (
+                        (string= *lookahead* "OP_MULT")
+                            (match "OP_MULT")
+                            (push "*" function_body)
+                            (let
+                                (
+                                    (expr1_val nil)
+                                    (expr2_val nil)
+                                )
+                                (setq expr1_val (EXPR))
+                                (setq expr2_val (EXPR))
+                                
+                                ;; if expr1_val or expr2_val are not strings then it is a syntax error
+                                (if (and (stringp expr1_val) (stringp expr2_val))
+                                    (setq result (multiply_valuef expr1_val expr2_val))
+                                    (return-from EXPR nil)
+                                )
+                            )
+                    )
+                    (
+                        (string= *lookahead* "OP_DIV")
+                            (match "OP_DIV")
+                            (push "/" function_body)
+                            (let
+                                (
+                                    (expr1_val nil)
+                                    (expr2_val nil)
+                                )
+                                (setq expr1_val (EXPR))
+                                (setq expr2_val (EXPR))
+                                ;; if expr1_val or expr2_val are not strings then it is a syntax error
+                                (if (and (stringp expr1_val) (stringp expr2_val))
+                                    (setq result (divide_valuef expr1_val expr2_val))
+                                    (return-from EXPR nil)
+                                )
+                            )
+                    )
+                    (
+                        t
+                        (return-from EXPR nil)
+                    )
+                )
+                ;; if there is no OP_CP then it is a syntax error
+                (if (string= *lookahead* "OP_CP")
+                    (progn
+                        (push ")" function_body)
+                        (match "OP_CP")
+                    )
+                    (return-from EXPR nil)
+                )
+                (return-from EXPR result)
+            )
+            (
+                (string= *lookahead* "VALUEF")
+                    (let
+                        (
+                            (result nil)
+                        )
+                        (setq result (match "VALUEF"))
+                        (push result function_body)
+                        (return-from EXPR result)
+                    )
+                    ;; value of the valuef
+                    ;; (return-from EXPR (nth result_index *tokens*))
+            )
+            (
+                (string= *lookahead* "IDENTIFIER")
+                    ;; (match "IDENTIFIER")
+                    ;; (return-from EXPR t)
+                    (let
+                        (
+                            (result nil)
+                        )
+                        (setq result (match "IDENTIFIER"))
+                        (push result function_body)
+                        (return-from EXPR result)
+                    )
+            )        
+            (
+                t
+                (return-from EXPR nil)
+            )
+        )
+    )
+
     "Returns a the value of the expression depending on whether the tokens are syntatically correct or not."
     (cond 
         ((string= *lookahead* "OP_OP")
@@ -532,6 +661,9 @@
 
 (defun FUNCT ()
     "Returns the value of the function depending on whether the tokens are syntatically correct or not."
+    
+    (setq *inFunction* t)
+
     (format t "tokens_copy: ~a~%" tokens_copy)
     (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
     (cond
@@ -546,38 +678,42 @@
                                 (
                                     (function_name nil)
                                     (parameters nil)
-                                    (body nil)
                                 )
                                 (if (string= *lookahead* "IDENTIFIER")
                                     (progn
-                                        (function_name (match "IDENTIFIER"))
+                                        (setq function_name (match "IDENTIFIER"))
                                         (if (string= *lookahead* "IDENTIFIER")
                                             ;; if there are parameters
                                             (progn
-                                                (push (match "IDENTIFIER") parameters)
+                                                (setq parameters (append parameters (list (match "IDENTIFIER"))))
                                                 ;; check for another parameter
                                                 (if (string= *lookahead* "IDENTIFIER")
-                                                    (push (match "IDENTIFIER") parameters)
+                                                    (setq parameters (append parameters (list (match "IDENTIFIER"))))
                                                 )
                                             )
                                             ;; if there are no parameters
                                             (progn
-
+                                                ;; (setq body function_body)
+                                                (EXPR)
+                                                (nreverse function_body)
+                                                (format t "function_body: ~a~%" function_body)
                                             )
                                         )
                                     )
                                     (return-from FUNCT nil) ;; if there is no IDENTIFIER then it is a syntax error
                                 )
-                                (setq function_name (nth 0 tokens_copy))
-                                (setq parameters (nth (+ result_index 2) *tokens*))
-                                (setq body (nth (+ result_index 4) *tokens*))
                                 (let
                                     (
-                                        (new_function (make-instance 'defined_function :name function_name))
+                                        (new_function (make-instance 'defined_function :name function_name :parameters parameters :body function_body))
                                     )
-                                    (push new_function *defined_function*)
+                                    (setq *defined_functions* (append *defined_functions* (list new_function)))
+                                    ;; print all the defined functions
+                                    (format t "new_function name: ~a~%" (name new_function))
+                                    (format t "new_function parameters: ~a~%" (parameters new_function))
+                                    (format t "new_function body: ~a~%" (body new_function))
                                 )
-                                (return-from FUNCT t)
+                                ;; (return-from FUNCT t)
+                                (return-from FUNCT "Function defined.")
                             )
                     )
                     (
