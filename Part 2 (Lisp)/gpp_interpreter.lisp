@@ -773,9 +773,11 @@
                                         (format t "parameters: ~a~%" parameters)
                                         (format t "entered_parameters: ~a~%" entered_parameters)
 
-                                        ;; update the values of the parameters
-                                        (loop for i from 0 to parameter_len do
-                                            (set_variable_value (nth i parameters) (nth i entered_parameters))
+                                        ;; update the values of the parameters if there are any parameters
+                                        (when (> (length parameters) 0)
+                                            (loop for i from 0 to parameter_len do
+                                                (set_variable_value (nth i parameters) (nth i entered_parameters))
+                                            )
                                         )
 
                                         ;; add the function body from starting at the end of it to beginning to tokens_copy list
@@ -796,6 +798,10 @@
                                         (setq result (EXPR))
                                         (format t "tokens copy: ~a~%" tokens_copy)
                                         (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
+
+                                        (when (= (length parameters) 0)
+                                            (setq *lookahead* "OP_CP")
+                                        )
                                     )
                                 
                                 )
@@ -871,19 +877,29 @@
                                                     (progn
                                                         (setq function_parameters (append function_parameters (list (nth 0 tokens_copy))))
                                                         (match "IDENTIFIER")
-                                                        (format t "tokens_as_symbolss: ~a~%" *tokens_as_symbols*)
-                                                        (format t "tokens_copyy: ~a~%" tokens_copy)
-                                                        ;; set function_body to from tokens_copy's 0th index to end - 1
-                                                        (loop for i from 0 to (- (length tokens_copy) 2) do
-                                                            (setq function_body (append function_body (list (nth i tokens_copy))))
-                                                        )
-                                                        (format t "function_body: ~a~%" function_body)
+                                                        ;; (format t "tokens_as_symbolss: ~a~%" *tokens_as_symbols*)
+                                                        ;; (format t "tokens_copyy: ~a~%" tokens_copy)
+                                                        ;; ;; set function_body to from tokens_copy's 0th index to end - 1
+                                                        ;; (loop for i from 0 to (- (length tokens_copy) 2) do
+                                                        ;;     (setq function_body (append function_body (list (nth i tokens_copy))))
+                                                        ;; )
+                                                        ;; (format t "function_body: ~a~%" function_body)
                                                     )
                                                 )
                                             )
                                         )
                                     )
                                     (return-from FUNCT nil) ;; if there is no IDENTIFIER then it is a syntax error
+                                )
+                                ;; set the function body
+                                (progn
+                                    (format t "tokens_as_symbolss: ~a~%" *tokens_as_symbols*)
+                                    (format t "tokens_copyy: ~a~%" tokens_copy)
+                                    ;; set function_body to from tokens_copy's 0th index to end - 1
+                                    (loop for i from 0 to (- (length tokens_copy) 2) do
+                                        (setq function_body (append function_body (list (nth i tokens_copy))))
+                                    )
+                                    (format t "function_body: ~a~%" function_body)                 
                                 )
                                 (EXPR) ;; evaluate the function body
                                 (let
