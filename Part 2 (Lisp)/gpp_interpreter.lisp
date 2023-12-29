@@ -223,7 +223,7 @@
                 ;; define new variable with value 0b1
                 (if (not found)
                     (progn
-                        (setq new_variable (make-instance 'defined_variable :name result :value "0b1"))
+                        (setq new_variable (make-instance 'defined_variable :name result :value "1b1"))
                         (setq *defined_variables* (append *defined_variables* (list new_variable)))
                         (setq result (value new_variable))
                     )
@@ -456,13 +456,7 @@
                 (cond
                     ((string= *lookahead* "OP_PLUS")
                         (match "OP_PLUS")
-                        (format t "tokens_copy: ~a~%" tokens_copy)
-                        ;; (push "+" function_body)
-                        ;; (push (nth 0 tokens_copy) function_body)
-                        ;; (push (nth 1 tokens_copy) function_body)
-                        ;; (setq function_parameters (append function_parameters (list (nth 0 tokens_copy))))
-                        ;; (setq function_parameters (append function_parameters (list (nth 1 tokens_copy))))
-                        ;; (format t "function_parameters test: ~a~%" function_parameters)
+
                         (let
                             (
                                 (expr1_val nil)
@@ -563,9 +557,6 @@
                                 )
                                 (if isDefined
                                     (progn
-                                        (format t "function_name: ~a~%" function_name)
-                                        (format t "parameters: ~a~%" parameters)
-                                        (format t "body: ~a~%" body)
 
                                         
                                     
@@ -709,7 +700,6 @@
                                 (body nil)
                                 (isDefined nil)
                             )
-                            (format t "tokens_copy: ~a~%" tokens_copy)
                             ;; search for the function
                             (loop for function in *defined_functions* do
                                 (if (string= (name function) (nth 0 tokens_copy))
@@ -724,11 +714,6 @@
                             )
                             (if isDefined
                                 (progn
-                                    (format t "function_name: ~a~%" function_name)
-                                    (format t "parameters: ~a~%" parameters)
-                                    (format t "body: ~a~%" body)
-                                    (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
-                                    (format t "tokens_copy: ~a~%" tokens_copy)
                                     (let
                                         (
                                             (parameter_len nil)
@@ -740,17 +725,12 @@
                                             (setq entered_parameters (append entered_parameters (list (nth i tokens_copy))))
                                         )
 
-                                        (format t "lookahead: ~a~%" *lookahead*)
-                                        (format t "inFunction: ~a~%" *inFunction*)
                                         (loop for i from 0 to parameter_len do
                                             (setq symbol_backup (nth 0 *tokens_as_symbols*))
-                                            (format t "sonuc: ~d~%"(EXPR))
                                             (when (= i parameter_len)
                                                 (push symbol_backup *tokens_as_symbols*)
                                             )
                                         )
-                                        (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
-                                        (format t "tokens_copy: ~a~%" tokens_copy)
 
 
                                         ;; (setq tokens_copy (copy-list backup_tokens_copy))
@@ -766,12 +746,7 @@
                                         ;; )
 
 
-                                        (format t "entered_parameters: ~a~%" entered_parameters)
-                                        (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
-                                        (format t "tokens_copy: ~a~%" tokens_copy)
 
-                                        (format t "parameters: ~a~%" parameters)
-                                        (format t "entered_parameters: ~a~%" entered_parameters)
 
                                         ;; update the values of the parameters if there are any parameters
                                         (when (> (length parameters) 0)
@@ -791,13 +766,9 @@
                                             (dfa (nth i body))
                                         )
                                         
-                                        (format t "tokens copy: ~a~%" tokens_copy)
-                                        (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
                                         (setq *lookahead* (getNextToken))
                                         (setq tokens_copy (copy-list backup_tokens_copy)) ;; copying again because it should follow 1 index behind
                                         (setq result (EXPR))
-                                        (format t "tokens copy: ~a~%" tokens_copy)
-                                        (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
 
                                         (when (= (length parameters) 0)
                                             (setq *lookahead* "OP_CP")
@@ -846,8 +817,6 @@
     
     (setq *inFunction* t)
 
-    (format t "tokens_copy: ~a~%" tokens_copy)
-    (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
     (cond
         (
             (string= *lookahead* "OP_OP")
@@ -860,8 +829,6 @@
                                 (
                                     (function_name nil)
                                 )
-                                (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
-                                (format t "tokens_copy: ~a~%" tokens_copy)
                                 (if (string= *lookahead* "IDENTIFIER")
                                     (progn
                                         (setq function_name (nth 0 tokens_copy))
@@ -893,13 +860,10 @@
                                 )
                                 ;; set the function body
                                 (progn
-                                    (format t "tokens_as_symbolss: ~a~%" *tokens_as_symbols*)
-                                    (format t "tokens_copyy: ~a~%" tokens_copy)
                                     ;; set function_body to from tokens_copy's 0th index to end - 1
                                     (loop for i from 0 to (- (length tokens_copy) 2) do
                                         (setq function_body (append function_body (list (nth i tokens_copy))))
                                     )
-                                    (format t "function_body: ~a~%" function_body)                 
                                 )
                                 (EXPR) ;; evaluate the function body
                                 (let
@@ -907,10 +871,6 @@
                                         (new_function (make-instance 'defined_function :name function_name :parameters function_parameters :body function_body))
                                     )
                                     (setq *defined_functions* (append *defined_functions* (list new_function)))
-                                    ;; print all the defined functions
-                                    (format t "new_function name: ~a~%" (name new_function))
-                                    (format t "new_function parameters: ~a~%" (parameters new_function))
-                                    (format t "new_function body: ~a~%" (body new_function))
                                 )
 
                                 (if (string= *lookahead* "OP_CP")
