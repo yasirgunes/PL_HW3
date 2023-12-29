@@ -26,13 +26,13 @@
 (defclass defined_function ()
     (
         (name :accessor name :initarg :name)
-        ;; (parameters :accessor parameters :initarg :parameters)
-        ;; (body :accessor body :initarg :body)
+        (parameters :accessor parameters :initarg :parameters :initform (list))
+        (body :accessor body :initarg :body :initform (list))
     )
 
 )
 ;; create a list of functions
-(defvar *defined_function* nil)
+(defvar *defined_functions* nil)
 
 
 (defun add_valuef (valuef1 valuef2)
@@ -199,6 +199,9 @@
     )
 )
 
+(defvar *inFunction* nil) ;; this is for checking whether we are in a function or not
+;; we're going to use it for not to evaluate the expression when we're defining the function.
+
 (defun isExpressionStart ()
     "Checks whether the *lookahead* token is an expression start or not."
     (cond
@@ -341,8 +344,8 @@
                 (match "OP_OP")
                 (cond
                     (
-                        (string= *lookahead* "IDENTIFIER")
-                            (match "IDENTIFIER")
+                        (string= *lookahead* "KW_DEF")
+                            (match "DEF")
 
                             ;; fresh start for the next expression
                             (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
@@ -385,7 +388,7 @@
         )
         (
             (isFunctionStart)
-            (return-from START (FUNCTION))
+            (return-from START (FUNCT))
         )
         (
             (string= *lookahead* "OP_OP")
@@ -515,8 +518,9 @@
         )
         (
             (string= *lookahead* "IDENTIFIER")
+                ;; (match "IDENTIFIER")
+                ;; (return-from EXPR t)
                 (match "IDENTIFIER")
-                (return-from EXPR t)
         )        
         (
             t
@@ -524,6 +528,69 @@
         )
     )
 
+)
+
+(defun FUNCT ()
+    "Returns the value of the function depending on whether the tokens are syntatically correct or not."
+    (format t "tokens_copy: ~a~%" tokens_copy)
+    (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
+    (cond
+        (
+            (string= *lookahead* "OP_OP")
+                (match "OP_OP")
+                (cond
+                    (
+                        (string= *lookahead* "KW_DEF")
+                            (match "KW_DEF")
+                            (let
+                                (
+                                    (function_name nil)
+                                    (parameters nil)
+                                    (body nil)
+                                )
+                                (if (string= *lookahead* "IDENTIFIER")
+                                    (progn
+                                        (function_name (match "IDENTIFIER"))
+                                        (if (string= *lookahead* "IDENTIFIER")
+                                            ;; if there are parameters
+                                            (progn
+                                                (push (match "IDENTIFIER") parameters)
+                                                ;; check for another parameter
+                                                (if (string= *lookahead* "IDENTIFIER")
+                                                    (push (match "IDENTIFIER") parameters)
+                                                )
+                                            )
+                                            ;; if there are no parameters
+                                            (progn
+
+                                            )
+                                        )
+                                    )
+                                    (return-from FUNCT nil) ;; if there is no IDENTIFIER then it is a syntax error
+                                )
+                                (setq function_name (nth 0 tokens_copy))
+                                (setq parameters (nth (+ result_index 2) *tokens*))
+                                (setq body (nth (+ result_index 4) *tokens*))
+                                (let
+                                    (
+                                        (new_function (make-instance 'defined_function :name function_name))
+                                    )
+                                    (push new_function *defined_function*)
+                                )
+                                (return-from FUNCT t)
+                            )
+                    )
+                    (
+                        t
+                        (return-from FUNCT nil)
+                    )
+                )
+        )
+        (
+            t
+            (return-from FUNCT nil)
+        )
+    )
 )
 
 
