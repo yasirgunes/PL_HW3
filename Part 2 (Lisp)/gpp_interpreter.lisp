@@ -220,7 +220,7 @@
                         )
                     )
                 )
-                ;; define new variable with value 0b1
+                ;; define new variable with value 1b1
                 (if (not found)
                     (progn
                         (setq new_variable (make-instance 'defined_variable :name result :value "1b1"))
@@ -456,7 +456,12 @@
                 (cond
                     ((string= *lookahead* "OP_PLUS")
                         (match "OP_PLUS")
-
+                        ;; (push "+" function_body)
+                        ;; (push (nth 0 tokens_copy) function_body)
+                        ;; (push (nth 1 tokens_copy) function_body)
+                        ;; (setq function_parameters (append function_parameters (list (nth 0 tokens_copy))))
+                        ;; (setq function_parameters (append function_parameters (list (nth 1 tokens_copy))))
+                        ;; (format t "function_parameters test: ~a~%" function_parameters)
                         (let
                             (
                                 (expr1_val nil)
@@ -727,6 +732,7 @@
 
                                         (loop for i from 0 to parameter_len do
                                             (setq symbol_backup (nth 0 *tokens_as_symbols*))
+                                            (EXPR)
                                             (when (= i parameter_len)
                                                 (push symbol_backup *tokens_as_symbols*)
                                             )
@@ -744,8 +750,6 @@
                                         ;; (loop for i from 0 to (- parameter_len 1) do
                                         ;;     (pop *tokens_as_symbols*)
                                         ;; )
-
-
 
 
                                         ;; update the values of the parameters if there are any parameters
@@ -871,6 +875,7 @@
                                         (new_function (make-instance 'defined_function :name function_name :parameters function_parameters :body function_body))
                                     )
                                     (setq *defined_functions* (append *defined_functions* (list new_function)))
+                                    ;; print all the defined functions
                                 )
 
                                 (if (string= *lookahead* "OP_CP")
@@ -900,7 +905,7 @@
 )
 
 
-
+;; (def func x y (+ x (- x (* x (/ x y)))))
 (defun gppinterpreter (&optional file)
     (format t "Type exit to quit.~%Enter the string to be parsed:~%")
     (if file
@@ -950,25 +955,6 @@
                 ;; if else if else statements.
                 (cond
                     ( ;; if the result is "exit" then exit the program
-                        (string= START_result "exit")
-                            (return)
-                    )
-                    ( ;; else if the result is nil then there is a syntax error
-                        (string= START_result nil)
-                            (format t "Syntax error.~%")
-                    )
-                    ( ;; else print the result
-                        t
-                            (format t "~a~%" START_result)
-                    )
-                )
-            )
-        )
-  )
-)
-
-(gppinterpreter)
-                                                     program
                         (string= START_result "exit")
                             (return)
                     )
