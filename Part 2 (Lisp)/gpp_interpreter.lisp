@@ -296,6 +296,17 @@
                             (return-from isExpressionStart t)
                     )
                     (
+                        (string= *lookahead* "KW_IF")
+                            (match "KW_IF")
+
+                            ;; fresh start for the next expression
+                            (setq *tokens_as_symbols* (copy-list copy_tokens_as_symbols))
+                            (setq tokens_copy (copy-list *tokens*))
+                            (setq *lookahead* (getNextToken))
+                            (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
+                    )
+
+                    (
                         (string= *lookahead* "IDENTIFIER")
                             (match "IDENTIFIER")
 
@@ -616,6 +627,8 @@
     )
 
     "Returns a the value of the expression depending on whether the tokens are syntatically correct or not."
+    (format t "tokens_copy: ~a~%" tokens_copy)
+    (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
     (cond 
         ((string= *lookahead* "OP_OP")
             (match "OP_OP")
@@ -690,6 +703,29 @@
                             )
                         )
                 )
+
+                ;; if statement
+                (   
+                    (string= *lookahead* "KW_IF")  ; Check for 'if' keyword
+                        (format t "girdi~%")
+                        (match "KW_IF")  ; Match 'if' keyword
+                        (let 
+                            (
+                                (the_condition (EXPR))  ; Evaluate condition
+                                (then-part nil)
+                                (else-part nil)
+                            )
+                            ;; Evaluate the condition, then-part, and else-part
+                            (setq then-part (EXPR))  ; Evaluate then-part
+                            (setq else-part (EXPR))  ; Evaluate else-part
+                            ;; Check condition and select the appropriate part
+                            (if (or (string= the_condition "0b1") (string= the_condition "nil"))  ; Check if condition is false
+                                (setq result else-part)  ; Return else-part if condition is false
+                                (setq result then-part)  ; Return then-part if condition is true
+                            )
+                        )
+                )
+                
                 ;; to evaluate functions
                 (
                     (string= *lookahead* "IDENTIFIER")
