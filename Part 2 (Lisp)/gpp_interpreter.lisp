@@ -771,11 +771,40 @@
         (with-open-file (stream file)
             (loop for line = (read-line stream nil)
                 while line do
+                (format t "> ~a~%" line)
+                (setf *tokens_as_symbols* nil)
                 (setq *tokens* (tokenize_input line))
                 (loop for token in *tokens* do
                     (setf result (dfa token))
                     (if (string= result "END_OF_LINE")
                         (return)
+                    )
+                )
+                ;; reverse the *tokens_as_symbols* list
+                (nreverse *tokens_as_symbols*)
+
+                ;; copy the *tokens_as_symbols* list to *copy_tokens_as_symbols*
+                (setq copy_tokens_as_symbols (copy-list *tokens_as_symbols*))
+
+                ;; copy the *tokens* list to tokens_copy
+                (setq tokens_copy (copy-list *tokens*))
+                (setq *lookahead* (getNextToken))
+                (setq tokens_copy (copy-list *tokens*)) ;; copying again because it should follow 1 index behind
+                (setq START_result (START))
+
+                ;; if else if else statements.
+                (cond
+                    ( ;; if the result is "exit" then exit the program
+                        (string= START_result "exit")
+                            (return)
+                    )
+                    ( ;; else if the result is nil then there is a syntax error
+                        (string= START_result nil)
+                            (format t "Syntax error.~%")
+                    )
+                    ( ;; else print the result
+                        t
+                            (format t "~a~%" START_result)
                     )
                 )
             )
@@ -831,3 +860,4 @@
 )
 
 (gppinterpreter)
+;; (gppinterpreter "input.txt")

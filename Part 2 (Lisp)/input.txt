@@ -1,11 +1,6 @@
-;; helloworld.g++
-(def sumup (x) 
- (if (equal x 0) 
- 1 
- (+ x (sumup (- x 1)))
- )
- )
-
-(list 1b1 2b1 123b12) 
-
-(liste 1b1 2b1 3b1)
+(+ 4b1 6b1)
+(def sum x y (+ x y))
+(sum 4b1 6b1)
+(* 4b1 6b1 8b1)
+(* 4b1 6b1)
+(exit)
