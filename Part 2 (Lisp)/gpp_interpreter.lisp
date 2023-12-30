@@ -236,8 +236,6 @@
     )
 )
 
-(defvar *inFunction* nil) ;; this is for checking whether we are in a function or not
-;; we're going to use it for not to evaluate the expression when we're defining the function.
 
 (defun isExpressionStart ()
     "Checks whether the *lookahead* token is an expression start or not."
@@ -460,175 +458,7 @@
 (setq function_parameters (list ))
 (setq result nil)
 (defun EXPR ()
-    (when *inFunction*
-        (cond 
-            ((string= *lookahead* "OP_OP")
-                (match "OP_OP")
-                ;; (push "(" function_body)
-                (cond
-                    ((string= *lookahead* "OP_PLUS")
-                        (match "OP_PLUS")
-
-                        (let
-                            (
-                                (expr1_val nil)
-                                (expr2_val nil)
-                            )
-                            ;; don't want to add to function_body and function_parameters randomly.
-                            ;; main purpose is to obtain parameters and body of the function.
-                            
-                            ;; (setq *inFunction* nil)
-                            (setq expr1_val (EXPR))
-                            (setq expr2_val (EXPR))
-                            ;; (setq *inFunction* t)
-
-                            ;; if expr1_val or expr2_val are not strings then it is a syntax error
-                            (if (and (stringp expr1_val) (stringp expr2_val))
-                                (setq result (add_valuef expr1_val expr2_val))
-                                (return-from EXPR nil)
-                            )
-                        )
-                    )
-                    (
-                        (string= *lookahead* "OP_MINUS")
-                            (match "OP_MINUS")
-                            ;; (push "-" function_body)
-                            (let
-                                (
-                                    (expr1_val nil)
-                                    (expr2_val nil)
-                                )
-                                (setq expr1_val (EXPR))
-                                (setq expr2_val (EXPR))
-
-                                ;; if expr1_val or expr2_val are not strings then it is a syntax error
-                                (if (and (stringp expr1_val) (stringp expr2_val))
-                                    (setq result (subtract_valuef expr1_val expr2_val))
-                                    (return-from EXPR nil)
-                                )
-                            )
-                    )
-                    (
-                        (string= *lookahead* "OP_MULT")
-                            (match "OP_MULT")
-                            ;; (push "*" function_body)
-                            (let
-                                (
-                                    (expr1_val nil)
-                                    (expr2_val nil)
-                                )
-                                (setq expr1_val (EXPR))
-                                (setq expr2_val (EXPR))
-                                
-                                ;; if expr1_val or expr2_val are not strings then it is a syntax error
-                                (if (and (stringp expr1_val) (stringp expr2_val))
-                                    (setq result (multiply_valuef expr1_val expr2_val))
-                                    (return-from EXPR nil)
-                                )
-                            )
-                    )
-                    (
-                        (string= *lookahead* "OP_DIV")
-                            (match "OP_DIV")
-                            ;; (push "/" function_body)
-                            (let
-                                (
-                                    (expr1_val nil)
-                                    (expr2_val nil)
-                                )
-                                (setq expr1_val (EXPR))
-                                (setq expr2_val (EXPR))
-                                ;; if expr1_val or expr2_val are not strings then it is a syntax error
-                                (if (and (stringp expr1_val) (stringp expr2_val))
-                                    (setq result (divide_valuef expr1_val expr2_val))
-                                    (return-from EXPR nil)
-                                )
-                            )
-                    )
-                    ;; to evaluate functions
-                    (
-                        (string= *lookahead* "IDENTIFIER")
-                            (match "IDENTIFIER")
-                            (let
-                                (
-                                    (function_name nil)
-                                    (parameters nil)
-                                    (body nil)
-                                    (isDefined nil)
-                                )
-                                ;; search for the function
-                                (loop for function in *defined_functions* do
-                                    (if (string= (name function) (nth 0 tokens_copy))
-                                        (progn
-                                            (setq isDefined t)
-                                            (setq function_name (name function))
-                                            (setq parameters (parameters function))
-                                            (setq body (body function))
-                                        )
-                                    )
-                                )
-                                (if isDefined
-                                    (progn
-
-                                        
-                                    
-                                    )
-                                    (return-from EXPR "Function not defined.")
-                                )                            
-                            )
-                    )
-                    (
-                        t
-                        (return-from EXPR nil)
-                    )
-                )
-                ;; if there is no OP_CP then it is a syntax error
-                (if (string= *lookahead* "OP_CP")
-                    (progn
-                        ;; (push ")" function_body)
-                        (match "OP_CP")
-                    )
-                    (return-from EXPR nil)
-                )
-                (return-from EXPR result)
-            )
-            (
-                (string= *lookahead* "VALUEF")
-                    (let
-                        (
-                            (result nil)
-                        )
-                        (setq result (match "VALUEF"))
-                        ;; (push result function_body)
-                        (return-from EXPR result)
-                    )
-                    ;; value of the valuef
-                    ;; (return-from EXPR (nth result_index *tokens*))
-            )
-            
-            (
-                (string= *lookahead* "IDENTIFIER")
-                    ;; (match "IDENTIFIER")
-                    ;; (return-from EXPR t)
-                    (let
-                        (
-                            (result nil)
-                        )
-                        (setq result (match "IDENTIFIER"))
-                        ;; (push result function_body)
-                        (return-from EXPR result)
-                    )
-            )        
-            (
-                t
-                (return-from EXPR nil)
-            )
-        )
-    )
-
     "Returns a the value of the expression depending on whether the tokens are syntatically correct or not."
-    (format t "tokens_copy: ~a~%" tokens_copy)
-    (format t "tokens_as_symbols: ~a~%" *tokens_as_symbols*)
     (cond 
         ((string= *lookahead* "OP_OP")
             (match "OP_OP")
@@ -707,7 +537,6 @@
                 ;; if statement
                 (   
                     (string= *lookahead* "KW_IF")  ; Check for 'if' keyword
-                        (format t "girdi~%")
                         (match "KW_IF")  ; Match 'if' keyword
                         (let 
                             (
@@ -725,7 +554,7 @@
                             )
                         )
                 )
-                
+
                 ;; to evaluate functions
                 (
                     (string= *lookahead* "IDENTIFIER")
@@ -851,8 +680,6 @@
 (defun FUNCT ()
     "Returns the value of the function depending on whether the tokens are syntatically correct or not."
     
-    (setq *inFunction* t)
-
     (cond
         (
             (string= *lookahead* "OP_OP")
@@ -916,7 +743,6 @@
                                 )
 
                                 ;; refresh the necessary variables
-                                (setq *inFunction* nil)
                                 (setq function_body (list ))
                                 (setq function_parameters (list ))
 
